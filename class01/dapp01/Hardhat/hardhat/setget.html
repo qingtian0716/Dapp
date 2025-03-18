@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourCollectible</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js" defer></script>
+</head>
+<body>
+  <h1>YourCollectible DApp</h1>
+    
+  <!-- Set Value Section -->
+  <div>
+      <h2>Set Value</h2>
+      <input type="number" id="setValue" placeholder="Enter value">
+      <button onclick="setValue()">Set</button>
+      <p id="transactionInfo">交易哈希：</p>
+  </div>
+
+  <!-- Get Value Section -->
+  <div>
+      <h2>Get Value</h2>
+      <button onclick="getValue()">Get</button>
+      <p id="value"></p>
+  </div>
+
+  <!-- Get Account Info Section -->
+  <div>
+      <h2>Get Account Info</h2>
+      <button onclick="getAccountInfo()">Get Account Info</button>
+      <p id="accountAddress"></p>
+      <p id="accountBalance"></p>
+  </div>
+
+  <!-- Get Transaction Info Section -->
+  <div>
+      <h2>Get Transaction Info</h2>
+      <button onclick="getTransactionInfo()">Get Transaction Info</button>
+      <input type="text" id="txHashInput" placeholder="Enter transaction hash" />
+      <p id="transactionInfo"></p>
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</body>
+</html>

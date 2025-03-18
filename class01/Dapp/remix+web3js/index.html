@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="web3.min.js"></script>
+        <link rel="stylesheet" href="index.css" />
+        <title>区块链学院 DAPP</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>Interact with Your Smart Contract</h2>
+            <!-- Account Section -->
+            <div>
+                <button class="enableEthereumButton">Connect MetaMask</button>
+                <p>Your Account: <span class="showAccount">Not connected</span></p>
+            </div>
+            <hr>
+            
+            <!-- Set Value Section -->
+            <div>
+                <h3>Set a Value in the Contract</h3>
+                <input type="number" id="newValue" placeholder="Enter a value to set">
+                <button class="setValueButton">Set Value</button>
+                <div class="status" id="setStatus"></div>
+                <div class="status" id="setTransaction"></div>
+            </div>
+            <hr>
+    
+            <!-- Get Value Section -->
+            <div>
+                <h3>Get the Value from the Contract</h3>
+                <button class="getValueButton">Get Value</button>
+                <div class="status">
+                    Current Value: <span class="currentValue">Not Set</span>
+                </div>
+            </div>
+
+            <h2>Get Transaction Information</h2>
+        
+        <!-- 输入交易哈希 -->
+        <div>
+            <input type="text" id="transactionHash" placeholder="Enter transaction hash">
+            <button class="getTransactionButton">Get Transaction Info</button>
+        </div>
+
+        <!-- 显示交易信息 -->
+        <div class="transactionDetails">
+            <p><strong>Block Hash:</strong> <span id="blockHash">Not Available</span></p>
+            <p><strong>Block Number:</strong> <span id="blockNumber">Not Available</span></p>
+            <p><strong>Gas Used:</strong> <span id="gasUsed">Not Available</span></p>
+            <p><strong>Status:</strong> <span id="status">Not Available</span></p>
+            <p><strong>From:</strong> <span id="from">Not Available</span></p>
+            <p><strong>To:</strong> <span id="to">Not Available</span></p>
+        </div>
+        </div>
+        <script type="text/javascript" src="app.js"></script>
+    </body>
+</html>
