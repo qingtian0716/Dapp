@@ -8,38 +8,64 @@
     <script src="./script.js" defer></script>
 </head>
 <body>
-  <h1>YourCollectible DApp</h1>
-    
-  <!-- Set Value Section -->
-  <div>
-      <h2>Set Value</h2>
-      <input type="number" id="setValue" placeholder="Enter value">
-      <button onclick="setValue()">Set</button>
-      <p id="transactionInfo">交易哈希：</p>
-  </div>
+    <div class="container">
+        <h1 class="main-title">我的 DApp</h1>
 
-  <!-- Get Value Section -->
-  <div>
-      <h2>Get Value</h2>
-      <button onclick="getValue()">Get</button>
-      <p id="value"></p>
-  </div>
+        <div class="card">
+            <h2 class="card-title">上传图片到 IPFS</h2>
+            <div class="upload-section">
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImage()" class="file-input">
+                <div id="imagePreview" class="preview-container">
+                    <img id="preview" class="preview-image">
+                </div>
+                <button onclick="uploadToPinata()" class="btn">上传到 Pinata</button>
+                <p id="uploadStatus" class="status-text"></p>
+                <p id="ipfsHash" class="hash-text"></p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">设置数值</h2>
+            <div class="input-group">
+                <input type="number" id="setValue" placeholder="请输入数值" class="text-input">
+                <button onclick="setValue()" class="btn">设置</button>
+            </div>
+            <p id="transactionInfo" class="status-text">交易哈希：</p>
+        </div>
 
-  <!-- Get Account Info Section -->
-  <div>
-      <h2>Get Account Info</h2>
-      <button onclick="getAccountInfo()">Get Account Info</button>
-      <p id="accountAddress"></p>
-      <p id="accountBalance"></p>
-  </div>
+        <div class="card">
+            <h2 class="card-title">获取数值</h2>
+            <button onclick="getValue()" class="btn">获取</button>
+            <p id="value" class="value-text"></p>
+        </div>
 
-  <!-- Get Transaction Info Section -->
-  <div>
-      <h2>Get Transaction Info</h2>
-      <button onclick="getTransactionInfo()">Get Transaction Info</button>
-      <input type="text" id="txHashInput" placeholder="Enter transaction hash" />
-      <p id="transactionInfo"></p>
-  </div>
+        <div class="card">
+            <h2 class="card-title">账户信息</h2>
+            <button onclick="getAccountInfo()" class="btn">获取账户信息</button>
+            <p id="accountAddress" class="address-text"></p>
+            <p id="accountBalance" class="balance-text"></p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">交易信息</h2>
+            <div class="input-group">
+                <input type="text" id="txHashInput" placeholder="请输入交易哈希" class="text-input">
+                <button onclick="getTransactionInfo()" class="btn">获取信息</button>
+            </div>
+            <div id="txInfoContainer" class="tx-info-container" style="display: none;">
+                <p class="info-item">交易状态：<span id="txStatus"></span></p>
+                <p class="info-item">交易哈希：<span id="txHash"></span></p>
+                <p class="info-item">区块哈希：<span id="blockHash"></span></p>
+                <p class="info-item">区块编号：<span id="blockNumber"></span></p>
+                <p class="info-item">发送地址：<span id="txFrom"></span></p>
+                <p class="info-item">接收地址：<span id="txTo"></span></p>
+                <p class="info-item">Gas 消耗：<span id="gasUsed"></span></p>
+            </div>
+        </div>
+            <p id="transactionInfo" class="status-text"></p>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
 </body>
 </html>

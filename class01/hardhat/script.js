@@ -32,14 +32,25 @@ async function setValue() {
     // 获取当前的 gas 价格
     const gasPrice = await web3.eth.getGasPrice();
 
-    // 发送交易，指定 gasPrice 以避免使用 EIP-1559
-    const tx = await contract.methods.set(value).send({
-        from: accounts[0],
-        gasPrice: gasPrice // 显式设置 gasPrice，避免使用 EIP-1559 机制
-    });
+    try {
+        // 发送交易，指定 gasPrice 以避免使用 EIP-1559
+        const tx = await contract.methods.set(value).send({
+            from: accounts[0],
+            gasPrice: gasPrice
+        });
 
-    const txHash = tx.transactionHash;
-    document.getElementById('transactionInfo').innerText = "Transaction Hash: " + txHash;
+        const txHash = tx.transactionHash;
+        document.getElementById('transactionInfo').innerText = "交易哈希：" + txHash;
+        
+        // 自动填充交易哈希到交易信息输入框
+        document.getElementById('txHashInput').value = txHash;
+        
+        // 自动触发交易信息查询
+        getTransactionInfo();
+        
+    } catch (error) {
+        alert("设置数值失败：" + error.message);
+    }
 }
 
 
@@ -63,30 +74,95 @@ async function getAccountInfo() {
 // Get Transaction Info Function
 async function getTransactionInfo() {
     const txHash = document.getElementById('txHashInput').value;
+    const container = document.getElementById('txInfoContainer');
+    
     if (!txHash) {
-        alert('Please enter a transaction hash.');
+        alert('请输入交易哈希');
+        container.style.display = 'none';
         return;
     }
 
-    const receipt = await web3.eth.getTransactionReceipt(txHash);
-    if (receipt) {
-        const status = receipt.status ? "Success" : "Failed"; // 状态：成功或失败
-        const blockHash = receipt.blockHash; // 区块哈希
-        const blockNumber = receipt.blockNumber; // 区块号
-        const from = receipt.from; // 发送者地址
-        const to = receipt.to; // 接收者地址
-        const gasUsed = receipt.gasUsed; // 使用的 gas
+    try {
+        const receipt = await web3.eth.getTransactionReceipt(txHash);
+        if (receipt) {
+            // 显示容器
+            container.style.display = 'block';
+            
+            // 更新各个信息字段
+            document.getElementById('txStatus').textContent = receipt.status ? "成功" : "失败";
+            document.getElementById('txHash').textContent = txHash;
+            document.getElementById('blockHash').textContent = receipt.blockHash;
+            document.getElementById('blockNumber').textContent = receipt.blockNumber;
+            document.getElementById('txFrom').textContent = receipt.from;
+            document.getElementById('txTo').textContent = receipt.to;
+            document.getElementById('gasUsed').textContent = receipt.gasUsed;
+        } else {
+            alert("未找到交易信息！");
+            container.style.display = 'none';
+        }
+    } catch (error) {
+        alert("获取交易信息时出错：" + error.message);
+        container.style.display = 'none';
+    }
+}
 
-        document.getElementById('transactionInfo').innerText = `
-            Status: ${status}
-            Transaction Hash: ${txHash}
-            Block Hash: ${blockHash}
-            Block Number: ${blockNumber}
-            From: ${from}
-            To: ${to}
-            Gas Used: ${gasUsed}
-        `;
+
+function previewImage() {
+    const fileInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const file = fileInput.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
     } else {
-        document.getElementById('transactionInfo').innerText = "Transaction not found!";
+        preview.style.display = 'none';
+    }
+}
+
+async function uploadToPinata() {
+    const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJlNWZjMjNkMS01NjA3LTQ0MTgtOTVhOC0xNjY1MWQxYjJjZDgiLCJlbWFpbCI6InFpbmd0aWFuMjY5MjgzNEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiNDQ3NGZhZDcyYWY1MmIxYTdiY2YiLCJzY29wZWRLZXlTZWNyZXQiOiJiYWY1YzA4NmI1MjJlNDA5ZTA4ZDEzYmFlMWRkOTMzZjVhZGZkZmJlYjg2ZWZjMGFmNWFkYWY5ZGJmZmZhNTY2IiwiZXhwIjoxNzczOTAwOTI3fQ.mLLtgbOt3QwPDDPGA6cHJklhQeEaAAAqEMpUtDsbLEA';
+    
+    const fileInput = document.getElementById('imageInput');
+    const file = fileInput.files[0];
+    const statusElement = document.getElementById('uploadStatus');
+    const hashElement = document.getElementById('ipfsHash');
+
+    if (!file) {
+        statusElement.textContent = '请选择文件';
+        return;
+    }
+
+    statusElement.textContent = '上传中...';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${JWT}`
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.IpfsHash) {
+            statusElement.textContent = '上传成功！';
+            hashElement.textContent = `IPFS Hash: ${result.IpfsHash}`;
+            // IPFS Gateway URL
+            const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`;
+            hashElement.innerHTML += `<br>访问链接：<a href="${ipfsUrl}" target="_blank">${ipfsUrl}</a>`;
+        } else {
+            statusElement.textContent = '上传失败';
+        }
+    } catch (error) {
+        statusElement.textContent = '上传出错：' + error.message;
     }
 }
