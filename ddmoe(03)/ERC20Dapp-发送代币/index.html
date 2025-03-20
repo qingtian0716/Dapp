@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <script type="text/javascript" src="jquery.js"></script>
+        <script type="text/javascript" src="web3.min.js"></script>
+        <link rel="stylesheet" href="index.css" />
+        <title>区块链学院 ERC20 DAPP</title>
+    </head>
+
+    <body>
+        <div class="center">
+            <h1>实训五 ERC20 DAPP</h1>
+            点击获取地址和余额:
+            <button type="submit" class="enableEthereumButton">获取</button>
+            <h3>账户地址: <span class="showAccount"></span></h3>
+            <h3>代币余额: <span class="MyBalance"></span></h3>
+            
+            <h2>ERC20 代币交易</h2>
+            <!-- <form class="search-container" id="send"> -->
+                <input type="text" id="address" placeholder="输入你的账户地址">
+                <div></div>
+                <input type="text" id="token" placeholder="输入发送的代币数量">
+                <button type="submit" class="sendbutton">发送</button>
+            <!-- </form> -->
+            <h3>交易Status:<span id="status"></span></h3>
+            <h3>交易Hash:<ol id="transactions"></ol></h3>
+        </div>
+        <script type="text/javascript" src="app.js"></script>
+    </body>
+</html>
