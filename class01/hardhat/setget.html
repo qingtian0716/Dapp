@@ -3,40 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourCollectible</title>
+    <title>学生成绩管理系统</title>
     <link rel="stylesheet" href="./styles.css">
     <script src="./script.js" defer></script>
 </head>
 <body>
     <div class="container">
-        <h1 class="main-title">我的 DApp</h1>
+        <h1 class="main-title">学生成绩管理系统</h1>
 
+        <!-- 在添加/更新学生成绩卡片中修改 -->
         <div class="card">
-            <h2 class="card-title">上传图片到 IPFS</h2>
-            <div class="upload-section">
-                <input type="file" id="imageInput" accept="image/*" onchange="previewImage()" class="file-input">
-                <div id="imagePreview" class="preview-container">
-                    <img id="preview" class="preview-image">
-                </div>
-                <button onclick="uploadToPinata()" class="btn">上传到 Pinata</button>
-                <p id="uploadStatus" class="status-text"></p>
-                <p id="ipfsHash" class="hash-text"></p>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2 class="card-title">设置数值</h2>
+            <h2 class="card-title">添加/更新学生成绩</h2>
             <div class="input-group">
-                <input type="number" id="setValue" placeholder="请输入数值" class="text-input">
-                <button onclick="setValue()" class="btn">设置</button>
+                <input type="text" id="studentName" placeholder="学生姓名" class="text-input">
+            </div>
+            
+            <div id="subjectsContainer">
+                <div class="subject-row">
+                    <input type="text" class="subject-input text-input" placeholder="学科">
+                    <input type="number" class="score-input text-input" placeholder="成绩">
+                    <button class="btn-small remove-subject">删除</button>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="addSubjectRow()" class="btn-small">添加学科</button>
+                <button onclick="addMultipleGrades()" class="btn">提交所有成绩</button>
             </div>
             <p id="transactionInfo" class="status-text">交易哈希：</p>
         </div>
 
         <div class="card">
-            <h2 class="card-title">获取数值</h2>
-            <button onclick="getValue()" class="btn">获取</button>
-            <p id="value" class="value-text"></p>
+            <h2 class="card-title">查询学生成绩</h2>
+            <div class="input-group">
+                <input type="text" id="queryStudentName" placeholder="学生姓名" class="text-input">
+                <button onclick="getGrades()" class="btn">查询</button>
+            </div>
+            <div id="gradesContainer" class="grades-container">
+                <!-- 成绩将在这里显示 -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">所有学生列表</h2>
+            <button onclick="getAllStudents()" class="btn">获取所有学生</button>
+            <div id="studentsContainer" class="students-container">
+                <!-- 学生列表将在这里显示 -->
+            </div>
         </div>
 
         <div class="card">
@@ -61,8 +74,6 @@
                 <p class="info-item">接收地址：<span id="txTo"></span></p>
                 <p class="info-item">Gas 消耗：<span id="gasUsed"></span></p>
             </div>
-        </div>
-            <p id="transactionInfo" class="status-text"></p>
         </div>
     </div>
 

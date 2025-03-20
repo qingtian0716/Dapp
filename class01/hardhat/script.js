@@ -19,22 +19,26 @@ window.addEventListener('load', async () => {
         // Initialize contract with ABI and address
         contract = new web3.eth.Contract(contractABI, contractAddress);
     } else {
-        alert('Please install MetaMask!');
+        alert('请安装 MetaMask!');
     }
 });
 
-// Set Value Function
-// Set Value Function
-async function setValue() {
-    const value = document.getElementById('setValue').value;
+// 添加学生成绩
+async function addGrade() {
+    const studentName = document.getElementById('studentName').value;
+    const subject = document.getElementById('subject').value;
+    const score = document.getElementById('score').value;
+    
+    if (!studentName || !subject || !score) {
+        alert('请填写完整的学生信息、学科和成绩');
+        return;
+    }
+    
     const accounts = await web3.eth.getAccounts();
-
-    // 获取当前的 gas 价格
     const gasPrice = await web3.eth.getGasPrice();
 
     try {
-        // 发送交易，指定 gasPrice 以避免使用 EIP-1559
-        const tx = await contract.methods.set(value).send({
+        const tx = await contract.methods.addGrade(studentName, subject, score).send({
             from: accounts[0],
             gasPrice: gasPrice
         });
@@ -48,27 +52,96 @@ async function setValue() {
         // 自动触发交易信息查询
         getTransactionInfo();
         
+        // 清空输入框
+        document.getElementById('studentName').value = '';
+        document.getElementById('subject').value = '';
+        document.getElementById('score').value = '';
+        
     } catch (error) {
-        alert("设置数值失败：" + error.message);
+        alert("添加成绩失败：" + error.message);
     }
 }
 
+// 获取学生成绩
+async function getGrades() {
+    const studentName = document.getElementById('queryStudentName').value;
+    
+    if (!studentName) {
+        alert('请输入学生姓名');
+        return;
+    }
+    
+    try {
+        const grades = await contract.methods.getGrades(studentName).call();
+        const container = document.getElementById('gradesContainer');
+        
+        if (grades.length === 0) {
+            container.innerHTML = `<p>未找到 ${studentName} 的成绩记录</p>`;
+            return;
+        }
+        
+        let html = `<h3>${studentName} 的成绩单</h3><table class="grades-table">
+                    <thead><tr><th>学科</th><th>成绩</th></tr></thead>
+                    <tbody>`;
+        
+        for (let i = 0; i < grades.length; i++) {
+            html += `<tr>
+                        <td>${grades[i].subject}</td>
+                        <td>${grades[i].score}</td>
+                    </tr>`;
+        }
+        
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+        
+    } catch (error) {
+        alert("获取成绩失败：" + error.message);
+    }
+}
 
-// Get Value Function
-async function getValue() {
-    const value = await contract.methods.get().call();
-    document.getElementById('value').innerText = value;
+// 获取所有学生
+async function getAllStudents() {
+    try {
+        const students = await contract.methods.getAllStudents().call();
+        const container = document.getElementById('studentsContainer');
+        
+        if (students.length === 0) {
+            container.innerHTML = '<p>暂无学生记录</p>';
+            return;
+        }
+        
+        let html = '<ul class="students-list">';
+        
+        for (let i = 0; i < students.length; i++) {
+            html += `<li>
+                        <span>${students[i]}</span>
+                        <button onclick="fillStudentName('${students[i]}')" class="btn-small">查询</button>
+                    </li>`;
+        }
+        
+        html += '</ul>';
+        container.innerHTML = html;
+        
+    } catch (error) {
+        alert("获取学生列表失败：" + error.message);
+    }
+}
+
+// 填充学生姓名到查询输入框
+function fillStudentName(name) {
+    document.getElementById('queryStudentName').value = name;
+    getGrades();
 }
 
 // Get Account Info Function
 async function getAccountInfo() {
     const accounts = await web3.eth.getAccounts();
     const accountAddress = accounts[0];
-    document.getElementById('accountAddress').innerText = "Account Address: " + accountAddress;
+    document.getElementById('accountAddress').innerText = "账户地址: " + accountAddress;
 
     const balance = await web3.eth.getBalance(accountAddress);
     const balanceInEther = web3.utils.fromWei(balance, 'ether');
-    document.getElementById('accountBalance').innerText = "Account Balance: " + balanceInEther + " ETH";
+    document.getElementById('accountBalance').innerText = "账户余额: " + balanceInEther + " ETH";
 }
 
 // Get Transaction Info Function
@@ -166,3 +239,115 @@ async function uploadToPinata() {
         statusElement.textContent = '上传出错：' + error.message;
     }
 }
+
+// 添加学科行
+function addSubjectRow() {
+    const container = document.getElementById('subjectsContainer');
+    const newRow = document.createElement('div');
+    newRow.className = 'subject-row';
+    newRow.innerHTML = `
+        <input type="text" class="subject-input text-input" placeholder="学科">
+        <input type="number" class="score-input text-input" placeholder="成绩">
+        <button class="btn-small remove-subject">删除</button>
+    `;
+    container.appendChild(newRow);
+    
+    // 为新添加的删除按钮添加事件监听
+    newRow.querySelector('.remove-subject').addEventListener('click', function() {
+        container.removeChild(newRow);
+    });
+}
+
+// 添加多个学科成绩
+async function addMultipleGrades() {
+    const studentName = document.getElementById('studentName').value;
+    if (!studentName) {
+        alert('请填写学生姓名');
+        return;
+    }
+    
+    const subjectRows = document.querySelectorAll('.subject-row');
+    const gradesData = [];
+    
+    // 收集所有学科和成绩
+    for (let i = 0; i < subjectRows.length; i++) {
+        const subject = subjectRows[i].querySelector('.subject-input').value;
+        const score = subjectRows[i].querySelector('.score-input').value;
+        
+        if (subject && score) {
+            gradesData.push({ subject, score });
+        }
+    }
+    
+    if (gradesData.length === 0) {
+        alert('请至少添加一个有效的学科和成绩');
+        return;
+    }
+    
+    const accounts = await web3.eth.getAccounts();
+    const gasPrice = await web3.eth.getGasPrice();
+    
+    try {
+        // 显示处理中的消息
+        document.getElementById('transactionInfo').innerText = "处理中...";
+        
+        // 批量提交所有成绩
+        for (let i = 0; i < gradesData.length; i++) {
+            const { subject, score } = gradesData[i];
+            
+            const tx = await contract.methods.addGrade(studentName, subject, score).send({
+                from: accounts[0],
+                gasPrice: gasPrice
+            });
+            
+            // 更新最后一个交易的哈希
+            if (i === gradesData.length - 1) {
+                const txHash = tx.transactionHash;
+                document.getElementById('transactionInfo').innerText = "交易哈希：" + txHash;
+                document.getElementById('txHashInput').value = txHash;
+                getTransactionInfo();
+            }
+        }
+        
+        // 清空输入框
+        document.getElementById('studentName').value = '';
+        const container = document.getElementById('subjectsContainer');
+        container.innerHTML = `
+            <div class="subject-row">
+                <input type="text" class="subject-input text-input" placeholder="学科">
+                <input type="number" class="score-input text-input" placeholder="成绩">
+                <button class="btn-small remove-subject">删除</button>
+            </div>
+        `;
+        
+        // 重新添加事件监听
+        document.querySelector('.remove-subject').addEventListener('click', function() {
+            if (document.querySelectorAll('.subject-row').length > 1) {
+                container.removeChild(this.parentNode);
+            }
+        });
+        
+        // 自动获取更新后的学生列表
+        getAllStudents();
+        
+    } catch (error) {
+        alert("添加成绩失败：" + error.message);
+        document.getElementById('transactionInfo').innerText = "交易失败";
+    }
+}
+
+// 初始化页面时添加删除按钮的事件监听
+window.addEventListener('load', function() {
+    // ... 现有的初始化代码 ...
+    
+    // 为初始的删除按钮添加事件监听
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-subject')) {
+            const container = document.getElementById('subjectsContainer');
+            // 确保至少保留一行
+            if (document.querySelectorAll('.subject-row').length > 1) {
+                container.removeChild(e.target.parentNode);
+            }
+        }
+    });
+});

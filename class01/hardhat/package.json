@@ -14,7 +14,7 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "dotenv-webpack": "^8.1.0",
     "ethers": "^6.13.5",
-    "hardhat": "file:"
+    "hardhat": "^2.22.1"  
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6",
