@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生成绩管理系统</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <h1>学生成绩管理系统</h1>
+  
+  <!-- 连接状态 -->
+  <div id="connectionStatus" class="connection-status">
+      <div id="blockchainStatus" class="status-indicator">
+          <span id="blockchainIcon" class="status-icon">⚪</span>
+          <span>区块链: </span>
+          <span id="blockchainStatusText">正在连接...</span>
+      </div>
+      <div id="databaseStatus" class="status-indicator">
+          <span id="databaseIcon" class="status-icon">⚪</span>
+          <span>数据库: </span>
+          <span id="databaseStatusText">正在连接...</span>
+      </div>
+  </div>
+    
+  <!-- Set Value Section -->
+  <div>
+      <h2>录入学生成绩</h2>
+      <div class="form-group">
+          <label for="studentId">学号：</label>
+          <input type="number" id="studentId" placeholder="请输入学号">
+      </div>
+      
+      <div id="subjects-container">
+          <div class="subject-row">
+              <select class="subject-name">
+                  <option value="">请选择课程</option>
+                  <option value="语文">语文</option>
+                  <option value="数学">数学</option>
+                  <option value="英语">英语</option>
+                  <option value="物理">物理</option>
+                  <option value="化学">化学</option>
+                  <option value="生物">生物</option>
+                  <option value="历史">历史</option>
+                  <option value="地理">地理</option>
+                  <option value="政治">政治</option>
+                  <option value="计算机">计算机</option>
+                  <option value="体育">体育</option>
+                  <option value="音乐">音乐</option>
+                  <option value="美术">美术</option>
+              </select>
+              <input type="number" class="subject-score" placeholder="成绩" min="0" max="100">
+          </div>
+      </div>
+      
+      <div class="button-container">
+          <button id="addSubject">添加课程</button>
+          <button onclick="setValue()">提交成绩</button>
+      </div>
+      <p id="setError" class="error"></p>
+      <p id="transactionInfo">交易哈希：</p>
+  </div>
+
+  <!-- Batch Import Section -->
+  <div>
+      <h2>批量导入学生成绩</h2>
+      <div class="form-group">
+          <label for="excelFile">上传Excel文件：</label>
+          <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+          <p class="hint">文件格式要求：第一列为学号，第一行为课程名称</p>
+      </div>
+      
+      <div class="button-container">
+          <button onclick="previewExcel()">预览数据</button>
+          <button onclick="importExcel()" id="importButton" disabled>批量导入</button>
+      </div>
+      
+      <div id="previewContainer" class="preview-container">
+          <h3>数据预览</h3>
+          <div id="previewTable" class="preview-table"></div>
+      </div>
+      
+      <p id="batchError" class="error"></p>
+      <p id="batchTransactionInfo">交易哈希：</p>
+  </div>
+
+  <!-- Pay Tuition Section -->
+  <div>
+      <h2>交学费</h2>
+      <div class="form-group">
+          <label for="tuitionStudentId">学号：</label>
+          <input type="number" id="tuitionStudentId" placeholder="请输入学号">
+          <div class="button-container">
+              <button onclick="payTuition()">支付学费</button>
+          </div>
+      </div>
+      <p id="tuitionError" class="error"></p>
+      <p id="tuitionTransactionInfo">交易哈希：</p>
+  </div>
+
+  <!-- Withdraw Section -->
+  <div>
+      <h2>提现</h2>
+      <div class="form-group">
+          <p id="contractBalance">合约余额：0 ETH</p>
+          <div class="button-container">
+              <button onclick="getContractBalance()">刷新余额</button>
+              <button onclick="withdraw()">提现</button>
+          </div>
+      </div>
+      <p id="withdrawError" class="error"></p>
+      <p id="withdrawTransactionInfo">交易哈希：</p>
+  </div>
+
+  <!-- Get Value Section -->
+  <div>
+      <h2>查询学生成绩</h2>
+      <div class="form-group">
+          <label for="queryStudentId">学号：</label>
+          <input type="number" id="queryStudentId" placeholder="请输入要查询的学号">
+          <div class="button-container">
+              <button onclick="getValue()">查询成绩</button>
+          </div>
+      </div>
+      <div id="results">
+          <!-- 成绩结果将在这里显示 -->
+      </div>
+  </div>
+
+  <!-- Get Account Info Section -->
+  <div>
+      <h2>账户信息</h2>
+      <div class="button-container">
+          <button onclick="getAccountInfo()">获取账户信息</button>
+      </div>
+      <p id="accountAddress"></p>
+      <p id="accountBalance"></p>
+  </div>
+
+  <!-- Get Transaction Info Section -->
+  <div>
+      <h2>交易信息</h2>
+      <div class="form-group">
+          <label for="txHashInput">交易哈希：</label>
+          <input type="text" id="txHashInput" placeholder="请输入交易哈希">
+          <div class="button-container">
+              <button onclick="getTransactionInfo()">获取交易信息</button>
+          </div>
+      </div>
+      <p id="transactionInfo"></p>
+  </div>
+
+  <!-- Upload Image to Pinata Section -->
+  <div>
+      <h2>上传图片到IPFS</h2>
+      <div class="form-group">
+          <label for="imageInput">选择图片：</label>
+          <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+          <div id="imagePreview"></div>
+          <div class="button-container">
+              <button onclick="uploadImageToPinata()">上传图片</button>
+          </div>
+      </div>
+      <p id="pinataResponse"></p>
+  </div>
+
+  <!-- 添加模块化脚本文件 -->
+  <script type="module" src="./js/main.js"></script>
+
+  <!-- Student Info Management Section -->
+  <div>
+      <h2>学生信息管理</h2>
+      <div class="form-group">
+          <label for="infoStudentId">学号：</label>
+          <input type="number" id="infoStudentId" placeholder="请输入学号">
+          
+          <label for="studentName">姓名：</label>
+          <input type="text" id="studentName" placeholder="请输入姓名">
+          
+          <label for="studentGender">性别：</label>
+          <select id="studentGender">
+              <option value="男">男</option>
+              <option value="女">女</option>
+          </select>
+          
+          <label for="className">班级：</label>
+          <input type="text" id="className" placeholder="请输入班级">
+          
+          <div class="button-container">
+              <button onclick="saveStudentInfo()">保存信息</button>
+          </div>
+      </div>
+      <p id="studentInfoError" class="error"></p>
+      <div id="studentInfoResult"></div>
+  </div>
+
+  <!-- 学生信息查询部分 -->
+  <div class="section">
+      <h2>学生信息查询</h2>
+      <div class="search-container">
+          <div class="search-group">
+              <label>按学号查询：</label>
+              <input type="number" id="searchStudentId" placeholder="请输入学号">
+              <button onclick="searchStudentById()">查询</button>
+          </div>
+          
+          <div class="search-group">
+              <label>按姓名查询：</label>
+              <input type="text" id="searchStudentName" placeholder="请输入姓名">
+              <button onclick="searchStudentByName()">查询</button>
+          </div>
+          
+          <div class="search-group">
+              <label>按班级查询：</label>
+              <input type="text" id="searchClassName" placeholder="请输入班级">
+              <button onclick="searchStudentsByClass()">查询</button>
+          </div>
+      </div>
+      <p id="searchError" class="error"></p>
+      <div id="searchResults"></div>
+  </div>
+</body>
+</html>
