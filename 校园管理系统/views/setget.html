@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生成绩管理系统</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./style1.css">
+    <link rel="stylesheet" href="./style2.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="sidebar-layout">
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>校园管理系统</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#grades-section" class="active"><span class="menu-icon">📊</span><span>成绩管理</span></a></li>
+            <li><a href="#tuition-section"><span class="menu-icon">💰</span><span>学费管理</span></a></li>
+            <li><a href="#student-info-section"><span class="menu-icon">👨‍🎓</span><span>学生信息</span></a></li>
+            <li><a href="#search-section"><span class="menu-icon">🔍</span><span>信息查询</span></a></li>
+            <li><a href="#transaction-section"><span class="menu-icon">📝</span><span>交易记录</span></a></li>
+            <li><a href="#account-section"><span class="menu-icon">👤</span><span>账户信息</span></a></li>
+            <li><a href="#upload-section"><span class="menu-icon">📤</span><span>文件上传</span></a></li>
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <h1>学生成绩管理系统</h1>
+        
+        <!-- 连接状态 -->
+        <div id="connectionStatus" class="connection-status">
+            <div id="blockchainStatus" class="status-indicator">
+                <span id="blockchainIcon" class="status-icon">⚪</span>
+                <span>区块链: </span>
+                <span id="blockchainStatusText">正在连接...</span>
+            </div>
+            <div id="databaseStatus" class="status-indicator">
+                <span id="databaseIcon" class="status-icon">⚪</span>
+                <span>数据库: </span>
+                <span id="databaseStatusText">正在连接...</span>
+            </div>
+        </div>
+          
+        <!-- 成绩管理部分 -->
+        <section id="grades-section">
+          <div class="compact-layout">
+            <!-- Set Value Section -->
+            <div class="content-card">
+                <h2>录入学生成绩</h2>
+                <div class="form-group">
+                    <label for="studentId">学号：</label>
+                    <input type="number" id="studentId" placeholder="请输入学号">
+                </div>
+                
+                <div id="subjects-container">
+                    <div class="subject-row">
+                        <select class="subject-name">
+                            <option value="">请选择课程</option>
+                            <option value="语文">语文</option>
+                            <option value="数学">数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                            <option value="历史">历史</option>
+                            <option value="地理">地理</option>
+                            <option value="政治">政治</option>
+                            <option value="计算机">计算机</option>
+                            <option value="体育">体育</option>
+                            <option value="音乐">音乐</option>
+                            <option value="美术">美术</option>
+                        </select>
+                        <input type="number" class="subject-score" placeholder="成绩" min="0" max="100">
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <button id="addSubject">添加课程</button>
+                    <button onclick="setValue()">提交成绩</button>
+                </div>
+                <p id="setError" class="error"></p>
+                <p id="transactionInfo">交易哈希：</p>
+            </div>
+
+            <!-- Get Value Section -->
+            <div class="content-card">
+                <h2>查询学生成绩</h2>
+                <div class="form-group">
+                    <label for="queryStudentId">学号：</label>
+                    <input type="number" id="queryStudentId" placeholder="请输入要查询的学号">
+                    <div class="button-container">
+                        <button onclick="getValue()">查询成绩</button>
+                    </div>
+                </div>
+                <div id="results">
+                    <!-- 成绩结果将在这里显示 -->
+                </div>
+            </div>
+          </div>
+
+          <!-- Batch Import Section -->
+          <div class="content-card">
+              <h2>批量导入学生成绩</h2>
+              <div class="form-group">
+                  <label for="excelFile">上传Excel文件：</label>
+                  <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+                  <p class="hint">文件格式要求：第一列为学号，第一行为课程名称</p>
+              </div>
+              
+              <div class="button-container">
+                  <button onclick="previewExcel()">预览数据</button>
+                  <button onclick="importExcel()" id="importButton" disabled>批量导入</button>
+              </div>
+              
+              <div id="previewContainer" class="preview-container">
+                  <h3>数据预览</h3>
+                  <div id="previewTable" class="preview-table"></div>
+              </div>
+              
+              <p id="batchError" class="error"></p>
+              <p id="batchTransactionInfo">交易哈希：</p>
+          </div>
+        </section>
+
+        <!-- 学费管理部分 -->
+        <section id="tuition-section">
+          <div class="compact-layout">
+            <!-- Pay Tuition Section -->
+            <div class="content-card">
+                <h2>交学费</h2>
+                <div class="form-group">
+                    <label for="tuitionStudentId">学号：</label>
+                    <input type="number" id="tuitionStudentId" placeholder="请输入学号">
+                    <div class="button-container">
+                        <button onclick="checkTuitionStatus()">查询学费状态</button>
+                        <button onclick="payTuition()">支付学费</button>
+                    </div>
+                </div>
+                <p id="tuitionStatus" class="status-message"></p>
+                <p id="tuitionError" class="error"></p>
+                <p id="tuitionTransactionInfo">交易哈希：</p>
+            </div>
+
+            <!-- Withdraw Section -->
+            <div class="content-card">
+                <h2>提现</h2>
+                <div class="form-group">
+                    <p id="contractBalance">合约余额：0 ETH</p>
+                    <div class="button-container">
+                        <button onclick="getContractBalance()">刷新余额</button>
+                        <button onclick="withdraw()">提现</button>
+                    </div>
+                </div>
+                <p id="withdrawError" class="error"></p>
+                <p id="withdrawTransactionInfo">交易哈希：</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 学生信息管理部分 -->
+        <section id="student-info-section">
+          <div class="compact-layout">
+            <!-- Student Info Management Section -->
+            <div class="content-card">
+                <h2>学生信息管理</h2>
+                <div class="form-group">
+                    <div class="form-row">
+                        <div>
+                            <label for="infoStudentId">学号：</label>
+                            <input type="number" id="infoStudentId" placeholder="请输入学号">
+                        </div>
+                        <div>
+                            <label for="studentName">姓名：</label>
+                            <input type="text" id="studentName" placeholder="请输入姓名">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label for="studentGender">性别：</label>
+                            <select id="studentGender">
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="className">班级：</label>
+                            <input type="text" id="className" placeholder="请输入班级">
+                        </div>
+                    </div>
+                    <div class="button-container">
+                        <button onclick="saveStudentInfo()">保存信息</button>
+                    </div>
+                </div>
+                <p id="studentInfoError" class="error"></p>
+                <div id="studentInfoResult"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 信息查询部分 -->
+        <section id="search-section">
+          <!-- 学生信息查询部分 -->
+          <div class="content-card section">
+              <h2>学生信息查询</h2>
+              <div class="search-container">
+                  <div class="search-group">
+                      <label>按学号或姓名查询：</label>
+                      <input type="text" id="searchStudentTerm" placeholder="请输入学号或姓名">
+                      <button onclick="searchStudentByIdOrName()">查询</button>
+                  </div>
+                  
+                  <div class="search-group">
+                      <label>按班级查询：</label>
+                      <input type="text" id="searchClassName" placeholder="请输入班级">
+                      <button onclick="searchStudentsByClass()">查询</button>
+                  </div>
+              </div>
+              <p id="searchError" class="error"></p>
+              <div id="searchResults"></div>
+          </div>
+        </section>
+
+        <!-- 交易记录和账户信息部分 -->
+        <section id="transaction-section">
+          <div class="compact-layout">
+            <!-- Get Transaction Info Section -->
+            <div class="content-card">
+                <h2>交易信息</h2>
+                <div class="form-group">
+                    <label for="txHashInput">交易哈希：</label>
+                    <input type="text" id="txHashInput" placeholder="请输入交易哈希">
+                    <div class="button-container">
+                        <button onclick="getTransactionInfo()">获取交易信息</button>
+                    </div>
+                </div>
+                <p id="transactionInfo"></p>
+            </div>
+            
+            <!-- Get Account Info Section -->
+            <div class="content-card">
+                <h2>账户信息</h2>
+                <div class="button-container">
+                    <button onclick="getAccountInfo()">获取账户信息</button>
+                </div>
+                <p id="accountAddress"></p>
+                <p id="accountBalance"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 账户信息部分 -->
+        <section id="account-section">
+          <div class="compact-layout">
+            <!-- Get Account Info Section -->
+            <div class="content-card">
+                <h2>账户信息</h2>
+                <div class="button-container">
+                    <button onclick="getAccountInfo()">获取账户信息</button>
+                </div>
+                <p id="accountAddress"></p>
+                <p id="accountBalance"></p>
+            </div>
+            
+            <!-- Upload Image to Pinata Section -->
+            <div class="content-card">
+                <h2>上传图片到IPFS</h2>
+                <div class="form-group">
+                    <label for="imageInput">选择图片：</label>
+                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                    <div id="imagePreview"></div>
+                    <div class="button-container">
+                        <button onclick="uploadImageToPinata()">上传图片</button>
+                    </div>
+                </div>
+                <p id="pinataResponse"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 文件上传部分 -->
+        <section id="upload-section">
+          <!-- Upload Image to Pinata Section -->
+          <div class="content-card">
+              <h2>上传图片到IPFS</h2>
+              <div class="form-group">
+                  <label for="imageInput">选择图片：</label>
+                  <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                  <div id="imagePreview"></div>
+                  <div class="button-container">
+                      <button onclick="uploadImageToPinata()">上传图片</button>
+                  </div>
+              </div>
+              <p id="pinataResponse"></p>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <p>© 2023 校园管理系统 - 区块链技术应用</p>
+        </footer>
+      </div>
+    </div>
+    
+    <!-- 折叠按钮 -->
+    <div class="sidebar-toggle">≡</div>
+  </div>
+
+  <!-- 添加脚本文件，确保在DOM加载后执行 -->
+  <script src="../script.js"></script>
+  <script src="../script1.js"></script>
+  <script>
+    // 侧边栏交互功能
+    document.addEventListener('DOMContentLoaded', function() {
+      // 默认显示第一个部分
+      document.getElementById('grades-section').classList.add('active');
+      
+      // 侧边栏菜单项点击事件
+      const menuItems = document.querySelectorAll('.sidebar-menu a');
+      menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // 移除所有活动状态
+          menuItems.forEach(i => i.classList.remove('active'));
+          document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+          
+          // 添加当前活动状态
+          this.classList.add('active');
+          
+          // 显示对应部分
+          const targetId = this.getAttribute('href').substring(1);
+          document.getElementById(targetId).classList.add('active');
+        });
+      });
+      
+      // 侧边栏折叠按钮
+      const toggleBtn = document.querySelector('.sidebar-toggle');
+      const layout = document.querySelector('.sidebar-layout');
+      
+      toggleBtn.addEventListener('click', function() {
+        layout.classList.toggle('sidebar-collapsed');
+        
+        // 在移动设备上
+        if (window.innerWidth <= 768) {
+          layout.classList.toggle('sidebar-open');
+        }
+      });
+      
+      // 响应式处理
+      window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+          layout.classList.remove('sidebar-collapsed');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

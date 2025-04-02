@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理 - 校园管理系统</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 角色管理页面特定样式 */
+        .role-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .role-table th, .role-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .role-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .role-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .role-table tr:hover {
+            background-color: #f1f8ff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-edit {
+            background-color: #28a745;
+        }
+        
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        
+        .btn-permission {
+            background-color: #6f42c1;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 50%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .form-row label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* 权限树样式 */
+        .permission-tree {
+            margin-top: 15px;
+        }
+        
+        .permission-group {
+            margin-bottom: 15px;
+        }
+        
+        .permission-group-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .permission-group-title input {
+            margin-right: 10px;
+        }
+        
+        .permission-items {
+            margin-left: 25px;
+        }
+        
+        .permission-item {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .permission-item input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>角色管理</h1>
+        
+        <div class="actions-bar">
+            <button id="addRoleBtn" class="btn-primary">
+                <i class="fas fa-plus"></i> 添加角色
+            </button>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索角色...">
+                <button id="searchBtn">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+        </div>
+        
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>角色名称</th>
+                    <th>角色描述</th>
+                    <th>创建时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>超级管理员</td>
+                    <td>系统最高权限，可以管理所有功能</td>
+                    <td>2023-01-01 08:00:00</td>
+                    <td><span class="badge badge-success">启用</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-permission"><i class="fas fa-key"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>教师</td>
+                    <td>教师角色，可以管理课程和成绩</td>
+                    <td>2023-01-02 09:15:00</td>
+                    <td><span class="badge badge-success">启用</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-permission"><i class="fas fa-key"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>学生</td>
+                    <td>学生角色，可以查看课程和成绩</td>
+                    <td>2023-01-03 10:30:00</td>
+                    <td><span class="badge badge-success">启用</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-permission"><i class="fas fa-key"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>家长</td>
+                    <td>家长角色，可以查看学生成绩</td>
+                    <td>2023-01-04 14:45:00</td>
+                    <td><span class="badge badge-danger">禁用</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-permission"><i class="fas fa-key"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- 添加/编辑角色模态框 -->
+        <div id="roleModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">添加角色</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="roleForm">
+                    <div class="form-row">
+                        <label for="roleName">角色名称</label>
+                        <input type="text" id="roleName" name="roleName" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="roleDesc">角色描述</label>
+                        <textarea id="roleDesc" name="roleDesc" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="roleStatus">状态</label>
+                        <select id="roleStatus" name="roleStatus" required>
+                            <option value="1">启用</option>
+                            <option value="0">禁用</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancelBtn">取消</button>
+                        <button type="submit" id="saveBtn">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 权限设置模态框 -->
+        <div id="permissionModal" class="modal">
+            <div class="modal-content" style="width: 60%; max-width: 700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">权限设置</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div>
+                    <h3 id="permissionRoleName">角色：超级管理员</h3>
+                    
+                    <div class="permission-tree">
+                        <!-- 系统管理权限组 -->
+                        <div class="permission-group">
+                            <div class="permission-group-title">
+                                <input type="checkbox" id="systemManagement" checked>
+                                <label for="systemManagement">系统管理</label>
+                            </div>
+                            <div class="permission-items">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="systemInfo" checked>
+                                    <label for="systemInfo">系统信息查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="systemBackup" checked>
+                                    <label for="systemBackup">系统备份</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="systemRestore" checked>
+                                    <label for="systemRestore">系统恢复</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="systemLog" checked>
+                                    <label for="systemLog">系统日志</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户管理权限组 -->
+                        <div class="permission-group">
+                            <div class="permission-group-title">
+                                <input type="checkbox" id="userManagement" checked>
+                                <label for="userManagement">用户管理</label>
+                            </div>
+                            <div class="permission-items">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="userView" checked>
+                                    <label for="userView">用户查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="userAdd" checked>
+                                    <label for="userAdd">用户添加</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="userEdit" checked>
+                                    <label for="userEdit">用户编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="userDelete" checked>
+                                    <label for="userDelete">用户删除</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 角色管理权限组 -->
+                        <div class="permission-group">
+                            <div class="permission-group-title">
+                                <input type="checkbox" id="roleManagement" checked>
+                                <label for="roleManagement">角色管理</label>
+                            </div>
+                            <div class="permission-items">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="roleView" checked>
+                                    <label for="roleView">角色查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="roleAdd" checked>
+                                    <label for="roleAdd">角色添加</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="roleEdit" checked>
+                                    <label for="roleEdit">角色编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="roleDelete" checked>
+                                    <label for="roleDelete">角色删除</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="rolePermission" checked>
+                                    <label for="rolePermission">权限设置</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 更多权限组... -->
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="cancelPermissionBtn">取消</button>
+                        <button type="button" id="savePermissionBtn">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 角色模态框功能
+        const roleModal = document.getElementById('roleModal');
+        const addRoleBtn = document.getElementById('addRoleBtn');
+        const roleCloseBtn = document.querySelector('#roleModal .close');
+        const cancelRoleBtn = document.getElementById('cancelBtn');
+        
+        // 打开角色模态框
+        addRoleBtn.addEventListener('click', () => {
+            roleModal.style.display = 'block';
+            document.getElementById('roleForm').reset();
+            document.querySelector('#roleModal .modal-title').textContent = '添加角色';
+        });
+        
+        // 关闭角色模态框
+        roleCloseBtn.addEventListener('click', () => {
+            roleModal.style.display = 'none';
+        });
+        
+        cancelRoleBtn.addEventListener('click', () => {
+            roleModal.style.display = 'none';
+        });
+        
+        // 权限模态框功能
+        const permissionModal = document.getElementById('permissionModal');
+        const permissionBtns = document.querySelectorAll('.btn-permission');
+        const permissionCloseBtn = document.querySelector('#permissionModal .close');
+        const cancelPermissionBtn = document.getElementById('cancelPermissionBtn');
+        
+        // 打开权限模态框
+        permissionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                const cells = row.querySelectorAll('td');
+                document.getElementById('permissionRoleName').textContent = '角色：' + cells[1].textContent;
+                permissionModal.style.display = 'block';
+            });
+        });
+        
+        // 关闭权限模态框
+        permissionCloseBtn.addEventListener('click', () => {
+            permissionModal.style.display = 'none';
+        });
+        
+        cancelPermissionBtn.addEventListener('click', () => {
+            permissionModal.style.display = 'none';
+        });
+        
+        // 保存权限设置
+        document.getElementById('savePermissionBtn').addEventListener('click', () => {
+            alert('权限设置已保存！');
+            permissionModal.style.display = 'none';
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === roleModal) {
+                roleModal.style.display = 'none';
+            }
+            if (event.target === permissionModal) {
+                permissionModal.style.display = 'none';
+            }
+        });
+        
+        // 编辑角色
+        const editBtns = document.querySelectorAll('.btn-edit');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                const cells = row.querySelectorAll('td');
+                
+                // 填充表单数据
+                document.getElementById('roleName').value = cells[1].textContent;
+                document.getElementById('roleDesc').value = cells[2].textContent;
+                document.getElementById('roleStatus').value = cells[4].textContent.includes('启用') ? '1' : '0';
+                
+                // 更改模态框标题
+                document.querySelector('#roleModal .modal-title').textContent = '编辑角色';
+                
+                // 显示模态框
+                roleModal.style.display = 'block';
+            });
+        });
+        
+        // 表单提交
+        document.getElementById('roleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // 这里添加表单提交逻辑
+            alert('角色信息已保存！');
+            roleModal.style.display = 'none';
+        });
+        
+        // 搜索功能
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.role-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if(text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // 删除角色
+        const deleteBtns = document.querySelectorAll('.btn-delete');
+        deleteBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(confirm('确定要删除此角色吗？')) {
+                    // 这里添加删除逻辑
+                    alert('角色已删除！');
+                }
+            });
+        });
+        
+        // 权限组全选/取消全选功能
+        const permissionGroups = document.querySelectorAll('.permission-group-title input');
+        permissionGroups.forEach(group => {
+            group.addEventListener('change', function() {
+                const items = this.closest('.permission-group').querySelectorAll('.permission-items input');
+                items.forEach(item => {
+                    item.checked = this.checked;
+                });
+            });
+        });
+        
+        // 权限项改变时检查组是否需要全选
+        const permissionItems = document.querySelectorAll('.permission-items input');
+        permissionItems.forEach(item => {
+            item.addEventListener('change', function() {
+                const group = this.closest('.permission-group');
+                const groupCheckbox = group.querySelector('.permission-group-title input');
+                const items = group.querySelectorAll('.permission-items input');
+                const allChecked = Array.from(items).every(i => i.checked);
+                groupCheckbox.checked = allChecked;
+            });
+        });
+    </script>
+</body>
+</html>

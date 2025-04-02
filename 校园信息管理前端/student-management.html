@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生管理 - 校园管理系统</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 学生管理页面特定样式 */
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .student-table th, .student-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .student-table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .student-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .student-table tr:hover {
+            background-color: #f1f8ff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-edit {
+            background-color: #28a745;
+        }
+        
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        
+        .btn-view {
+            background-color: #17a2b8;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-item label {
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+        
+        .filter-item select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            color: #007bff;
+            border: 1px solid #dee2e6;
+        }
+        
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 60%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .form-row label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-grid-full {
+            grid-column: span 2;
+        }
+        
+        .student-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .student-detail-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .student-detail-value {
+            color: #333;
+        }
+        
+        .student-photo {
+            width: 150px;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .import-export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        
+        .btn-import {
+            background-color: #6f42c1;
+        }
+        
+        .btn-export {
+            background-color: #fd7e14;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>学生管理</h1>
+        
+        <div class="actions-bar">
+            <button id="addStudentBtn" class="btn-primary">
+                <i class="fas fa-plus"></i> 添加学生
+            </button>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索学生姓名、学号...">
+                <button id="searchBtn">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+            <div class="import-export-buttons">
+                <button class="btn-import">
+                    <i class="fas fa-file-import"></i> 批量导入
+                </button>
+                <button class="btn-export">
+                    <i class="fas fa-file-export"></i> 导出Excel
+                </button>
+            </div>
+        </div>
+        
+        <div class="filter-bar">
+            <div class="filter-item">
+                <label for="gradeFilter">年级：</label>
+                <select id="gradeFilter">
+                    <option value="">全部</option>
+                    <option value="高一">高一</option>
+                    <option value="高二">高二</option>
+                    <option value="高三">高三</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="classFilter">班级：</label>
+                <select id="classFilter">
+                    <option value="">全部</option>
+                    <option value="1">1班</option>
+                    <option value="2">2班</option>
+                    <option value="3">3班</option>
+                    <option value="4">4班</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="statusFilter">状态：</label>
+                <select id="statusFilter">
+                    <option value="">全部</option>
+                    <option value="1">在读</option>
+                    <option value="2">休学</option>
+                    <option value="3">毕业</option>
+                </select>
+            </div>
+            <button id="resetFilterBtn">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+        </div>
+        
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>年级</th>
+                    <th>班级</th>
+                    <th>联系电话</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>20210001</td>
+                    <td>张三</td>
+                    <td>男</td>
+                    <td>高一</td>
+                    <td>1班</td>
+                    <td>13800138001</td>
+                    <td><span class="badge badge-success">在读</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>20210002</td>
+                    <td>李四</td>
+                    <td>女</td>
+                    <td>高一</td>
+                    <td>1班</td>
+                    <td>13800138002</td>
+                    <td><span class="badge badge-success">在读</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>20210003</td>
+                    <td>王五</td>
+                    <td>男</td>
+                    <td>高一</td>
+                    <td>2班</td>
+                    <td>13800138003</td>
+                    <td><span class="badge badge-warning">休学</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>20200001</td>
+                    <td>赵六</td>
+                    <td>女</td>
+                    <td>高二</td>
+                    <td>3班</td>
+                    <td>13800138004</td>
+                    <td><span class="badge badge-success">在读</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>20190001</td>
+                    <td>钱七</td>
+                    <td>男</td>
+                    <td>高三</td>
+                    <td>1班</td>
+                    <td>13800138005</td>
+                    <td><span class="badge badge-info">毕业</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view"><i class="fas fa-eye"></i></button>
+                            <button class="btn-edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="pagination">
+            <button>&laquo;</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>&raquo;</button>
+        </div>
+        
+        <!-- 添加/编辑学生模态框 -->
+        <div id="studentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">添加学生</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <form id="studentForm">
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label for="studentId">学号</label>
+                            <input type="text" id="studentId" name="studentId" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="studentName">姓名</label>
+                            <input type="text" id="studentName" name="studentName" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="gender">性别</label>
+                            <select id="gender" name="gender" required>
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="birthday">出生日期</label>
+                            <input type="date" id="birthday" name="birthday">
+                        </div>
+                        <div class="form-row">
+                            <label for="grade">年级</label>
+                            <select id="grade" name="grade" required>
+                                <option value="高一">高一</option>
+                                <option value="高二">高二</option>
+                                <option value="高三">高三</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="class">班级</label>
+                            <select id="class" name="class" required>
+                                <option value="1班">1班</option>
+                                <option value="2班">2班</option>
+                                <option value="3班">3班</option>
+                                <option value="4班">4班</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="phone">联系电话</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-row">
+                            <label for="email">电子邮箱</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                        <div class="form-row">
+                            <label for="idCard">身份证号</label>
+                            <input type="text" id="idCard" name="idCard">
+                        </div>
+                        <div class="form-row">
+                            <label for="status">状态</label>
+                            <select id="status" name="status" required>
+                                <option value="1">在读</option>
+                                <option value="2">休学</option>
+                                <option value="3">毕业</option>
+                            </select>
+                        </div>
+                        <div class="form-row form-grid-full">
+                            <label for="address">家庭住址</label>
+                            <input type="text" id="address" name="address">
+                        </div>
+                        <div class="form-row form-grid-full">
+                            <label for="remark">备注</label>
+                            <textarea id="remark" name="remark" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancelBtn">取消</button>
+                        <button type="submit" id="saveBtn">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 查看学生详情模态框 -->
+        <div id="viewStudentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">学生详情</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="student-details">
+                    <div style="display: flex; margin-bottom: 20px;">
+                        <div style="margin-right: 20px;">
+                            <img src="https://via.placeholder.com/150x200" alt="学生照片" class="student-photo">
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="student-detail">
+                                <div class="student-detail-label">学号：</div>
+                                <div class="student-detail-value" id="viewStudentId">20210001</div>
+                            </div>
+                            <div class="student-detail">
+                                <div class="student-detail-label">姓名：</div>
+                                <div class="student-detail-value" id="viewStudentName">张三</div>
+                            </div>
+                            <div class="student-detail">
+                                <div class="student-detail-label">性别：</div>
+                                <div class="student-detail-value" id="viewGender">男</div>
+                            </div>
+                            <div class="student-detail">
+                                <div class="student-detail-label">出生日期：</div>
+                                <div class="student-detail-value" id="viewBirthday">2003-05-15</div>
+                            </div>
+                            <div class="student-detail">
+                                <div class="student-detail-label">年级班级：</div>
+                                <div class="student-detail-value" id="viewGradeClass">高一1班</div>
+                            </div>
+                            <div class="student-detail">
+                                <div class="student-detail-label">状态：</div>
+                                <div class="student-detail-value" id="viewStatus"><span class="badge badge-success">在读</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>联系信息</h3>
+                    <div class="student-detail">
+                        <div class="student-detail-label">联系电话：</div>
+                        <div class="student-detail-value" id="viewPhone">13800138001</div>
+                    </div>
+                    <div class="student-detail">
+                        <div class="student-detail-label">电子邮箱：</div>
+                        <div class="student-detail-value" id="viewEmail">zhangsan@example.com</div>
+                    </div>
+                    <div class="student-detail">
+                        <div class="student-detail-label">家庭住址：</div>
+                        <div class="student-detail-value" id="viewAddress">北京市海淀区中关村大街1号</div>
+                    </div>
+                    
+                    <h3>其他信息</h3>
+                    <div class="student-detail">
+                        <div class="student-detail-label">身份证号：</div>
+                        <div class="student-detail-value" id="viewIdCard">110101200305150011</div>
+                    </div>
+                    <div class="student-detail">
+                        <div class="student-detail-label">入学时间：</div>
+                        <div class="student-detail-value" id="viewEnrollDate">2021-09-01</div>
+                    </div>
+                    <div class="student-detail">
+                        <div class="student-detail-label">备注：</div>
+                        <div class="student-detail-value" id="viewRemark">品学兼优，担任班长</div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="closeViewBtn">关闭</button>
+                        <button type="button" id="editFromViewBtn" class="btn-primary">编辑</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 学生模态框功能
+        const studentModal = document.getElementById('studentModal');
+        const viewStudentModal = document.getElementById('viewStudentModal');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const studentCloseBtn = document.querySelector('#studentModal .close');
+        const viewCloseBtn = document.querySelector('#viewStudentModal .close');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const closeViewBtn = document.getElementById('closeViewBtn');
+        const editFromViewBtn = document.getElementById('editFromViewBtn');
+        
+        // 打开添加学生模态框
+        addStudentBtn.addEventListener('click', () => {
+            studentModal.style.display = 'block';
+            document.getElementById('studentForm').reset();
+            document.querySelector('#studentModal .modal-title').textContent = '添加学生';
+        });
+        
+        // 关闭学生模态框
+        studentCloseBtn.addEventListener('click', () => {
+            studentModal.style.display = 'none';
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            studentModal.style.display = 'none';
+        });
+        
+        // 关闭查看学生详情模态框
+        viewCloseBtn.addEventListener('click', () => {
+            viewStudentModal.style.display = 'none';
+        });
+        
+        closeViewBtn.addEventListener('click', () => {
+            viewStudentModal.style.display = 'none';
+        });
+        
+        // 从详情页进入编辑
+        editFromViewBtn.addEventListener('click', () => {
+            viewStudentModal.style.display = 'none';
+            studentModal.style.display = 'block';
+            document.querySelector('#studentModal .modal-title').textContent = '编辑学生';
+            
+            // 填充表单数据（这里使用详情页的数据）
+            document.getElementById('studentId').value = document.getElementById('viewStudentId').textContent;
+            document.getElementById('studentName').value = document.getElementById('viewStudentName').textContent;
+            document.getElementById('gender').value = document.getElementById('viewGender').textContent;
+            // 其他字段类似处理...
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === studentModal) {
+                studentModal.style.display = 'none';
+            }
+            if (event.target === viewStudentModal) {
+                viewStudentModal.style.display = 'none';
+            }
+        });
+        
+        // 查看学生详情
+        const viewBtns = document.querySelectorAll('.btn-view');
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                const cells = row.querySelectorAll('td');
+                
+                // 填充详情数据
+                document.getElementById('viewStudentId').textContent = cells[0].textContent;
+                document.getElementById('viewStudentName').textContent = cells[1].textContent;
+                document.getElementById('viewGender').textContent = cells[2].textContent;
+                document.getElementById('viewGradeClass').textContent = cells[3].textContent + cells[4].textContent;
+                document.getElementById('viewPhone').textContent = cells[5].textContent;
+                document.getElementById('viewStatus').innerHTML = cells[6].innerHTML;
+                
+                // 显示详情模态框
+                viewStudentModal.style.display = 'block';
+            });
+        });
+        
+        // 编辑学生
+        const editBtns = document.querySelectorAll('.btn-edit');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                const cells = row.querySelectorAll('td');
+                
+                // 填充表单数据
+                document.getElementById('studentId').value = cells[0].textContent;
+                document.getElementById('studentName').value = cells[1].textContent;
+                document.getElementById('gender').value = cells[2].textContent;
+                document.getElementById('grade').value = cells[3].textContent;
+                document.getElementById('class').value = cells[4].textContent;
+                document.getElementById('phone').value = cells[5].textContent;
+                document.getElementById('status').value = cells[6].textContent.includes('在读') ? '1' : 
+                                                       cells[6].textContent.includes('休学') ? '2' : '3';
+                
+                // 更改模态框标题
+                document.querySelector('#studentModal .modal-title').textContent = '编辑学生';
+                
+                // 显示模态框
+                studentModal.style.display = 'block';
+            });
+        });
+        
+        // 表单提交
+        document.getElementById('studentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // 这里添加表单提交逻辑
+            alert('学生信息已保存！');
+            studentModal.style.display = 'none';
+        });
+        
+        // 搜索功能
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.student-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if(text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // 筛选功能
+        function applyFilters() {
+            const gradeFilter = document.getElementById('gradeFilter').value;
+            const classFilter = document.getElementById('classFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const rows = document.querySelectorAll('.student-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const grade = cells[3].textContent;
+                const className = cells[4].textContent;
+                const status = cells[6].textContent;
+                
+                let showRow = true;
+                
+                if (gradeFilter && grade !== gradeFilter) {
+                    showRow = false;
+                }
+                
+                if (classFilter && !className.includes(classFilter)) {
+                    showRow = false;
+                }
+                
+                if (statusFilter) {
+                    if (statusFilter === '1' && !status.includes('在读')) showRow = false;
+                    if (statusFilter === '2' && !status.includes('休学')) showRow = false;
+                    if (statusFilter === '3' && !status.includes('毕业')) showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+        
+        // 筛选事件监听
+        document.getElementById('gradeFilter').addEventListener('change', applyFilters);
+        document.getElementById('classFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        
+        // 重置筛选
+        document.getElementById('resetFilterBtn').addEventListener('click', () => {
+            document.getElementById('gradeFilter').value = '';
+            document.getElementById('classFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            
+            const rows = document.querySelectorAll('.student-table tbody tr');
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        });
+        
+        // 删除学生
+        const deleteBtns = document.querySelectorAll('.btn-delete');
+        deleteBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(confirm('确定要删除此学生吗？')) {
+                    // 这里添加删除逻辑
+                    alert('学生已删除！');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

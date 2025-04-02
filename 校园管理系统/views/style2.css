@@ -1,0 +1,152 @@
+/* 侧边栏布局 */
+.sidebar-layout {
+    min-height: 100vh;
+    margin: 0;
+    position: relative;
+    display: flex; /* 添加弹性布局 */
+    overflow: hidden; /* 防止整体页面滚动 */
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #ffffff;
+    color: #333;
+    padding: 20px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 0 20px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left; /* 修改为左对齐 */
+}
+
+.sidebar-header h2 {
+    color: #1a73e8; /* 修改标题颜色 */
+    border-bottom: none;
+    margin-bottom: 5px;
+    padding-bottom: 0;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 5px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #555; /* 修改链接颜色 */
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background-color: #f0f7ff; /* 修改悬停背景色 */
+    color: #1a73e8; /* 修改悬停文字颜色 */
+    border-left-color: #1a73e8; /* 修改左边框颜色 */
+}
+
+.sidebar-menu .menu-icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    height: 100vh; /* 设置高度为视口高度 */
+    overflow: hidden; /* 防止主内容区域自身滚动 */
+    position: relative;
+}
+
+/* 新增内容包装器样式 */
+.content-wrapper {
+    height: 100%;
+    overflow-y: auto; /* 只有内容包装器可以滚动 */
+    padding: 20px 30px;
+    background-color: #f0f4f8;
+}
+
+/* 折叠状态 */
+.sidebar-collapsed .sidebar {
+    width: 60px;
+    transform: translateX(0);
+}
+
+.sidebar-collapsed .sidebar-header h2,
+.sidebar-collapsed .sidebar-menu span {
+    display: none;
+}
+
+.sidebar-collapsed .main-content {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+}
+
+.sidebar-collapsed .sidebar-toggle {
+    left: 70px; /* 折叠状态下按钮位置调整 */
+}
+
+/* 页面内容卡片 */
+.content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 25px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 响应式设计增强 - 侧边栏特定部分 */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        transition: all 0.3s;
+    }
+    
+    .sidebar-open .main-content {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+}
+
+/* 隐藏非活动部分 */
+section {
+    display: none;
+}
+
+section.active {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+}
