@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app" content="基于区块链的成绩管理系统">
+    <meta name="theme-color" content="#4361ee">
+    <title>EduChain | 区块链成绩管理系统</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="page-container">
+    <header class="app-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-logo">
+                    <span class="brand-icon">📚</span>
+                    <span class="brand-text">区块链成绩管理系统</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link active">首页</a>
+                    <a href="login.html" class="nav-link">登录</a>
+                    <a href="admin.html" class="nav-link">管理员</a>
+                    <a href="teacher.html" class="nav-link">教师</a>
+                    <a href="student.html" class="nav-link">学生</a>
+                </div>
+                <div class="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 添加路由容器 -->
+    <div id="app">
+        <main class="main-content">
+            <div class="welcome-section fade-in">
+                <h1 class="welcome-title">欢迎使用 EduChain</h1>
+                <p class="welcome-subtitle">基于区块链的智能成绩管理系统</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="feature-icon">🔒</div>
+                        <h3>安全可靠</h3>
+                        <p>基于区块链技术，确保成绩数据的安全性和不可篡改性</p>
+                    </div>
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="feature-icon">📊</div>
+                        <h3>高效管理</h3>
+                        <p>智能化的成绩录入、查询和统计功能，提高教学管理效率</p>
+                    </div>
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="feature-icon">👥</div>
+                        <h3>多角色支持</h3>
+                        <p>支持管理员、教师、学生多种角色，满足不同用户需求</p>
+                    </div>
+                    <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                        <div class="feature-icon">📱</div>
+                        <h3>便捷访问</h3>
+                        <p>响应式设计，支持多设备访问，随时随地查看成绩信息</p>
+                    </div>
+                </div>
+
+                <div class="cta-section" data-aos="fade-up" data-aos-delay="500">
+                    <a href="login.html" class="cta-button">立即开始</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        <p>© 2025 EduChain - 区块链成绩管理系统</p>
+    </footer>
+
+    <!-- 使用CDN加载Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="../scripts/vendor/aos.js"></script>
+    <link href="../scripts/vendor/aos.css" rel="stylesheet">
+    <script src="../routes/router.js" type="module"></script>
+    <script src="../script.js" type="module"></script>
+    <script src="../scripts/transactionHelper.js" type="module"></script>
+    <script src="../scripts/index.js" type="module"></script>
+    
+    <script>
+        // 移动端菜单切换
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+        
+        // 初始化AOS动画库
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+        });
+    </script>
+</body>
+</html>

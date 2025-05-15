@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app" content="基于区块链的成绩管理系统">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>教师页面 | 区块链成绩管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script type="module" src="../script.js" defer></script>
+    <script type="module" src="../scripts/teacher.js" defer></script>
+</head>
+<body class="page-container">
+    <header class="app-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-logo">
+                    <span class="brand-icon">📚</span>
+                    <span class="brand-text">区块链成绩管理系统</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">首页</a>
+                    <a href="login.html" class="nav-link">登录</a>
+                    <a href="admin.html" class="nav-link">管理员</a>
+                    <a href="teacher.html" class="nav-link active">教师</a>
+                    <a href="student.html" class="nav-link">学生</a>
+                </div>
+                <div class="menu-toggle" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+            <div class="user-controls">
+                <button id="connectWalletBtn" class="btn btn-primary flex items-center gap-2">
+                    <span class="btn-icon">🔗</span>
+                    <span class="btn-text">连接钱包</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- 教师信息卡片 -->
+        <div class="dashboard-card user-info-card fade-in">
+            <h2 class="card-title">👨‍🏫 教师信息</h2>
+            <div class="status-items">
+                <div class="status-item">
+                    <span class="status-label">身份：</span>
+                    <span id="currentRole" class="status-value">教师</span>
+                    <span id="roleVerified" class="status-badge" style="display: none;">✓ 已验证</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">钱包地址：</span>
+                    <span id="walletAddress" class="status-value"><span class="loading-spinner"></span></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">权限状态：</span>
+                    <span id="permissionStatus" class="status-value">未验证</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学生管理面板 -->
+        <div class="dashboard-card student-card fade-in">
+            <h2 class="card-title">➕ 添加新生</h2>
+            <div class="form-group">
+                <input type="number" id="studentId" class="modern-input" placeholder="输入学号">
+                <input type="text" id="studentName" class="modern-input" placeholder="学生姓名">
+                <input type="text" id="studentWallet" class="modern-input" placeholder="学生钱包地址 (0x...)">
+                <button class="btn btn-primary w-full" id="addStudentBtn">
+                    <span class="btn-icon">👨‍🎓</span>
+                    创建学生档案
+                </button>
+                
+                <!-- 交易状态显示区域 -->
+                <div id="student-transaction-status" class="transaction-status">
+                    <h3>交易状态</h3>
+                    <div id="student-status">准备中...</div>
+                    <div id="student-hash" style="display: none;"></div>
+                    <div class="progress-container">
+                        <div id="student-progress" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成绩录入面板 -->
+        <div class="dashboard-card grade-card fade-in">
+            <h2 class="card-title">📝 成绩录入</h2>
+            <div class="form-group">
+                <input type="number" id="gradeStudentId" class="modern-input" placeholder="学生学号">
+                <div class="input-group">
+                    <input type="text" id="subject" class="modern-input" placeholder="科目名称">
+                    <input type="number" id="score" class="modern-input" placeholder="分数 (0-100)">
+                </div>
+                <button class="btn btn-primary w-full" id="updateScoreBtn">
+                    <span class="btn-icon">💯</span>
+                    提交成绩
+                </button>
+                
+                <!-- 交易状态显示区域 -->
+                <div id="score-transaction-status" class="transaction-status">
+                    <h3>交易状态</h3>
+                    <div id="score-status">准备中...</div>
+                    <div id="score-hash" style="display: none;"></div>
+                    <div class="progress-container">
+                        <div id="score-progress" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 批量成绩录入 -->
+        <div class="dashboard-card batch-card fade-in">
+            <h2 class="card-title">📦 批量操作</h2>
+            <div class="form-group">
+                <input type="number" id="batchStudentId" class="modern-input" placeholder="目标学生学号">
+                <textarea id="batchSubjects" class="modern-textarea" 
+                          placeholder="科目列表（用逗号分隔）&#10;例：数学, 物理, 英语"></textarea>
+                <textarea id="batchScores" class="modern-textarea" 
+                          placeholder="对应分数（用逗号分隔）&#10;例：90, 85, 92"></textarea>
+                <button class="btn btn-primary w-full" onclick="batchUpdateScores()">
+                    <span class="btn-icon">🚀</span>
+                    批量提交
+                </button>
+            </div>
+        </div>
+
+        <!-- 学生查询面板 -->
+        <div class="dashboard-card query-card fade-in">
+            <h2 class="card-title">🔍 学生查询</h2>
+            <div class="search-box">
+                <input type="number" id="queryStudentId" class="modern-input" placeholder="输入查询学号">
+                <div class="flex gap-2 mt-4">
+                    <button class="btn btn-secondary" onclick="getStudentInfo()">
+                        <span class="btn-icon">📄</span>
+                        基本信息
+                    </button>
+                    <button class="btn btn-secondary" onclick="getAllScores()">
+                        <span class="btn-icon">📊</span>
+                        成绩总览
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 查询结果展示 -->
+            <div class="query-results mt-4">
+                <div class="student-profile">
+                    <h3>👤 学生档案</h3>
+                    <div class="profile-info">
+                        <p>学号：<span id="infoId" class="highlight">-</span></p>
+                        <p>姓名：<span id="infoName" class="highlight">-</span></p>
+                    </div>
+                </div>
+                
+                <div class="grade-overview mt-4">
+                    <h3>📈 成绩总览</h3>
+                    <div id="scoreList" class="grade-table-container">
+                        <!-- 动态加载成绩表格 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>© 2025 EduChain - 区块链成绩管理系统</p>
+    </footer>
+
+    <!-- 使用外部脚本替代内联脚本 -->
+    <script src="../scripts/menuToggle.js" defer></script>
+</body>
+</html>

@@ -10,28 +10,27 @@ body {
     background-color: #f0f4f8;
     color: #333;
     line-height: 1.6;
-    /* 移除以下两行以取消居中 */
-    /* max-width: 1200px; */
-    /* margin: 0 auto; */
-    padding: 0; /* 修改内边距 */
+    padding: 0;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     color: #1a73e8;
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 h2 {
     color: #1a73e8;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
     font-size: 1.5rem;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 h3 {
@@ -41,56 +40,47 @@ h3 {
 }
 
 div {
-    margin-bottom: 30px;
-    padding: 25px;
+    margin-bottom: 25px;
+    padding: 20px;
     background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-div:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-/* 按钮样式优化 */
+/* 按钮样式 */
 button {
     background-color: #1a73e8;
     color: #fff;
     border: none;
-    padding: 12px 22px;
+    padding: 10px 20px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-right: 12px;
+    margin-right: 10px;
     font-weight: 500;
     font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
     background-color: #0d62d1;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 输入框样式优化 */
+/* 输入框样式 */
 input[type="number"],
 input[type="text"],
 input[type="file"],
 select {
     width: 100%;
-    padding: 14px;
-    margin-top: 10px;
+    padding: 12px;
+    margin-top: 8px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 1rem;
     transition: all 0.3s;
     background-color: #f9f9f9;
@@ -108,34 +98,28 @@ select:focus {
 
 /* 表单组样式 */
 .form-group {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     position: relative;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: 600;
     color: #444;
-    font-size: 1.05rem;
+    font-size: 1rem;
 }
 
 /* 课程行样式 */
 .subject-row {
     display: flex;
     gap: 15px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     align-items: center;
     background-color: #f9f9f9;
-    padding: 16px;
-    border-radius: 8px;
-    transition: all 0.3s;
+    padding: 15px;
+    border-radius: 6px;
     border: 1px solid #eee;
-}
-
-.subject-row:hover {
-    background-color: #f0f7ff;
-    border-color: #d0e3ff;
 }
 
 .subject-row input,
@@ -146,19 +130,18 @@ select:focus {
 
 .subject-row button {
     background-color: #f44336;
-    padding: 10px 15px;
-    margin-right: 0;
+    padding: 8px 15px;
 }
 
 .subject-row button:hover {
     background-color: #d32f2f;
 }
 
-/* 添加课程按钮和提交按钮的容器 */
+/* 按钮容器 */
 .button-container {
     display: flex;
     margin-top: 20px;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
@@ -175,7 +158,7 @@ select:focus {
 .results-table th, 
 .results-table td {
     border: 1px solid #e6e6e6;
-    padding: 14px 16px;
+    padding: 12px;
     text-align: left;
 }
 
@@ -183,7 +166,6 @@ select:focus {
     background-color: #1a73e8;
     color: white;
     font-weight: 500;
-    font-size: 1.05rem;
 }
 
 .results-table tr:nth-child(even) {
@@ -211,14 +193,6 @@ select:focus {
     border-left: 3px solid #f44336;
 }
 
-/* 信息文本样式 */
-p {
-    font-size: 1.05rem;
-    margin-top: 12px;
-    color: #555;
-    line-height: 1.5;
-}
-
 /* 交易信息样式 */
 #transactionInfo,
 #batchTransactionInfo,
@@ -243,7 +217,7 @@ p {
     color: #1a73e8;
     font-size: 1.1rem;
     background-color: #f8f9fa;
-    padding: 12px 15px;
+    padding: 12px;
     border-radius: 6px;
     margin-top: 12px;
     border: 1px solid #e0e0e0;
@@ -252,7 +226,8 @@ p {
 
 /* 上传文件表单样式 */
 #imageInput,
-#excelFile {
+#excelFile,
+#studentInfoExcelFile {
     padding: 12px;
     background-color: #f8f9fa;
     border: 2px dashed #ccc;
@@ -260,17 +235,10 @@ p {
 }
 
 #imageInput:hover,
-#excelFile:hover {
+#excelFile:hover,
+#studentInfoExcelFile:hover {
     border-color: #1a73e8;
     background-color: #f0f7ff;
-}
-
-#pinataResponse {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 6px;
-    background-color: #e9f7ef;
-    border: 1px solid #d5e8d4;
 }
 
 /* 图片预览区域 */
@@ -288,17 +256,11 @@ p {
 
 /* 批量导入预览容器 */
 .preview-container {
-    margin-top: 25px;
-    display: none;
+    margin-top: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
     padding: 20px;
     border: 1px solid #e0e0e0;
-}
-
-.preview-container h3 {
-    margin-bottom: 15px;
-    color: #1a73e8;
 }
 
 .preview-table {
@@ -318,7 +280,7 @@ p {
 .preview-table th, 
 .preview-table td {
     border: 1px solid #e0e0e0;
-    padding: 10px 12px;
+    padding: 10px;
     text-align: center;
 }
 
@@ -330,45 +292,91 @@ p {
     font-weight: 500;
 }
 
-.preview-table tr:nth-child(even) {
+/* 查询结果区域样式 */
+#results,
+#searchResults,
+#studentInfoResult {
+    margin-top: 20px;
+    min-height: 50px;
     background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
 }
 
-.preview-table tr:hover {
-    background-color: #f0f7ff;
+/* 连接状态样式 */
+.connection-status {
+    display: flex;
+    justify-content: space-around;
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin: 0 0 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
-.hint {
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 8px;
-    font-style: italic;
-    background-color: #fff8e1;
-    padding: 8px 12px;
+.status-indicator {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
     border-radius: 6px;
+    background-color: white;
+}
+
+.status-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.connected {
+    color: #4caf50;
+}
+
+.disconnected {
+    color: #f44336;
+}
+
+.connecting {
+    color: #ff9800;
+}
+
+/* 状态消息样式 */
+.status-message {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.paid {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 3px solid #4caf50;
+}
+
+.unpaid {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left: 3px solid #f44336;
+}
+
+.warning {
+    background-color: #fff8e1;
+    color: #f57f17;
     border-left: 3px solid #ffc107;
 }
 
-/* 数据有效性样式 */
-.valid-data {
-    color: #4caf50;
-    font-weight: 500;
-}
-
-.invalid-data {
-    color: #f44336;
-    font-weight: 500;
+.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 3px solid #4caf50;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    body {
-        padding: 15px;
-    }
-    
     div {
-        padding: 20px;
-        margin-bottom: 20px;
+        padding: 15px;
+        margin-bottom: 15px;
     }
     
     .subject-row {
@@ -384,22 +392,6 @@ p {
     
     .button-container {
         flex-direction: column;
-    }
-    
-    h1 {
-        font-size: 1.8rem;
-    }
-    
-    h2 {
-        font-size: 1.3rem;
-    }
-    
-    .page-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -423,84 +415,270 @@ p {
     background: #1a73e8;
 }
 
-/* 查询结果区域样式 */
-#results,
-#searchResults,
-#studentInfoResult {
-    margin-top: 20px;
-    transition: all 0.3s;
-    min-height: 50px;
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
+/* 确保缴费按钮在需要时正确显示 */
+#payTuitionButton.show {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-/* 课程容器样式 */
-#subjects-container {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
+/* AI对话部分的微信风格样式 */
+.section-description {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-/* 数据来源样式 */
-.info {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-weight: 500;
-    border-left: 3px solid #4caf50;
+.chat-container {
+  height: 500px;
+  border-radius: 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #ebebeb;
+  border: 1px solid #e0e0e0;
+  transition: box-shadow 0.3s ease;
 }
 
-.warning {
-    background-color: #fff8e1;
-    color: #f57f17;
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-style: italic;
-    border-left: 3px solid #ffc107;
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #ebebeb;
+  border-radius: 0;
 }
 
-/* 连接状态样式 */
-.connection-status {
-    display: flex;
-    justify-content: space-around;
-    background-color: #f8f9fa;
-    padding: 15px;
-    margin: 0 0 25px 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+.message {
+  max-width: 70%;
+  padding: 10px 15px;
+  position: relative;
+  word-break: break-word;
+  line-height: 1.5;
+  box-shadow: none;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.status-indicator {
-    display: flex;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #95ec69;
+  color: #000;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.user-message:after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-left: 8px solid #95ec69;
+  border-bottom: 5px solid transparent;
+}
+
+.ai-message {
+  align-self: flex-start;
+  background-color: white;
+  color: #000;
+  border-radius: 5px;
+  margin-left: 10px;
+}
+
+.ai-message:before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-right: 8px solid white;
+  border-bottom: 5px solid transparent;
+}
+
+/* 删除时间戳相关样式
+.message-time {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 5px;
+  text-align: right;
+  color: #888;
+}
+
+.user-message .message-time {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ai-message .message-time {
+  color: #777;
+}
+*/
+
+.chat-input-container {
+  display: flex;
+  padding: 10px;
+  background-color: #f5f5f5;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  border-radius: 0;
+}
+
+.chat-input-container input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s;
+  background-color: white;
+}
+
+.chat-input-container input:focus {
+  border-color: #1a73e8;
+}
+
+.chat-input-container button {
+  margin-left: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: #1a73e8;
+  color: white;
+}
+
+.chat-input-container button:hover {
+  background-color: #0d62d1;
+  transform: none;
+}
+
+.chat-features {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  padding: 15px 0;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 20px;  /* 增加圆弧度 */
+  transition: all 0.3s;
+  width: 30%;
+}
+
+.feature:hover {
+  background-color: #e8f0fe;
+  transform: translateY(-3px);
+}
+
+.feature i {
+  font-size: 1.8rem;
+  color: #1a73e8;
+  margin-bottom: 12px;
+}
+
+.feature span {
+  font-size: 0.95rem;
+  color: #444;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 打字指示器样式 */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  background-color: white;
+  border-radius: 18px;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  margin-top: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid #e0e0e0;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #1a73e8;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 3px;
+  opacity: 0.6;
+  animation: typing 1.4s infinite both;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计优化 */
+@media (max-width: 768px) {
+  .chat-container {
+    height: 400px;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  .chat-features {
+    flex-direction: column;
     align-items: center;
-    padding: 10px 15px;
-    border-radius: 6px;
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s;
+    gap: 15px;
+  }
+  
+  .feature {
+    width: 80%;
+  }
 }
 
-.status-icon {
-    font-size: 16px;
-    margin-right: 10px;
+#ai-chat-section .chat-input-container input {
+  background-color: #f5f5f5;
+  transition: background-color 0.3s;
 }
 
-/* 状态颜色 */
-.connected {
-    color: #4caf50;
-}
-
-.connecting {
-    color: #ff9800;
-}
-
-.disconnected {
-    color: #f44336;
+#ai-chat-section .chat-input-container input:focus {
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }

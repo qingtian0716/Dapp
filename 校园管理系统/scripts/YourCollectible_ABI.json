@@ -5,6 +5,32 @@
     "type": "constructor"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "studentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "StudentInfoUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "studentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TuitionPaid",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -31,7 +57,60 @@
       },
       {
         "internalType": "bool",
-        "name": "hasPaidTuition",
+        "name": "tuitionPaid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_studentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getStudentInfo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "gender",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "className",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_studentId",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasPaidTuition",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
         "type": "bool"
       }
     ],
@@ -60,6 +139,19 @@
       }
     ],
     "name": "payTuition",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_studentIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "payTuitionBatch",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -113,6 +205,95 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_studentIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[][]",
+        "name": "_subjectNamesArray",
+        "type": "string[][]"
+      },
+      {
+        "internalType": "uint256[][]",
+        "name": "_scoresArray",
+        "type": "uint256[][]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBatchChunked",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_studentId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_gender",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_className",
+        "type": "string"
+      }
+    ],
+    "name": "setStudentInfo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_studentIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_names",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_genders",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_classNames",
+        "type": "string[]"
+      }
+    ],
+    "name": "setStudentInfoBatch",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -129,6 +310,21 @@
         "internalType": "bool",
         "name": "hasPaidTuition",
         "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "gender",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "className",
+        "type": "string"
       }
     ],
     "stateMutability": "view",

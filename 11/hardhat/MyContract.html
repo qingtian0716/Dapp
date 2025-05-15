@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师工资管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+        }
+        .teacher-card {
+            border-left: 4px solid #0d6efd;
+        }
+        .countdown {
+            font-size: 1.2rem;
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .balance {
+            font-size: 1.5rem;
+            color: #198754;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">教师工资管理系统</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">合约信息</div>
+                    <div class="card-body">
+                        <p>合约地址: <span id="contractAddress" class="text-muted"></span></p>
+                        <p>管理员地址: <span id="adminAddress" class="text-muted"></span></p>
+                        <p>合约余额: <span id="contractBalance" class="balance">0</span> ETH</p>
+                        <div class="mb-3">
+                            <label for="depositAmount" class="form-label">存入金额 (ETH)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="depositAmount" step="0.01" min="0">
+                                <button class="btn btn-primary" id="depositBtn">存入</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">教师管理</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="teacherAddress" class="form-label">教师地址</label>
+                            <input type="text" class="form-control" id="teacherAddress" placeholder="0x...">
+                        </div>
+                        <div class="mb-3">
+                            <label for="teacherSalary" class="form-label">工资 (ETH)</label>
+                            <input type="number" class="form-control" id="teacherSalary" step="0.01" min="0">
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-success me-md-2" id="addTeacherBtn">添加教师</button>
+                            <button class="btn btn-danger" id="removeTeacherBtn">移除教师</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">教师列表</div>
+            <div class="card-body">
+                <div id="teachersList" class="row">
+                    <!-- 教师卡片将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">工资支付</div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    工资每2分钟自动支付一次，也可以手动触发支付。
+                </div>
+                <div id="paymentStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script> -->
+    <script src="./node_modules/ethers/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

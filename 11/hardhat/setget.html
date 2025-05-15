@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生成绩管理系统</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- 引入ECharts图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <h1>学生成绩管理系统</h1>
+
+    <!-- 连接状态 -->
+    <div id="connectionStatus" class="connection-status">
+        <div id="blockchainStatus" class="status-indicator">
+            <span id="blockchainIcon" class="status-icon">⚪</span>
+            <span>区块链: </span>
+            <span id="blockchainStatusText">正在连接...</span>
+        </div>
+        <div id="databaseStatus" class="status-indicator">
+            <span id="databaseIcon" class="status-icon">⚪</span>
+            <span>数据库: </span>
+            <span id="databaseStatusText">正在连接...</span>
+        </div>
+    </div>
+
+
+    <!-- 选项卡导航 -->
+    <div class="tabs">
+        <button class="tab-button active" data-tab="inputTab">成绩录入</button>
+        <button class="tab-button" data-tab="queryTab">成绩查询</button>
+        <button class="tab-button" data-tab="batchTab">批量导入</button>
+        <button class="tab-button" data-tab="statsTab">数据统计</button>
+        <button class="tab-button" data-tab="paymentTab">学费缴纳</button>
+        <button class="tab-button" data-tab="accountTab">账户信息</button>
+        <button class="tab-button" data-tab="ipfsTab">IPFS上传</button>
+    </div>
+
+    <!-- 成绩录入选项卡 -->
+    <div id="inputTab" class="tab-content active">
+        <h2>录入学生成绩</h2>
+        <div class="form-group">
+            <label for="studentId">学号：</label>
+            <input type="number" id="studentId" placeholder="请输入学号">
+        </div>
+
+        <div id="subjects-container">
+            <div class="subject-row">
+                <select class="subject-name">
+                    <option value="">请选择课程</option>
+                    <option value="语文">语文</option>
+                    <option value="数学">数学</option>
+                    <option value="英语">英语</option>
+                    <option value="物理">物理</option>
+                    <option value="化学">化学</option>
+                    <option value="生物">生物</option>
+                    <option value="历史">历史</option>
+                    <option value="地理">地理</option>
+                    <option value="政治">政治</option>
+                    <option value="计算机">计算机</option>
+                    <option value="体育">体育</option>
+                    <option value="音乐">音乐</option>
+                    <option value="美术">美术</option>
+                </select>
+                <input type="number" class="subject-score" placeholder="成绩" min="0" max="100">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button id="addSubject" class="secondary-button">添加课程</button>
+            <button onclick="setValue()" class="primary-button">提交成绩</button>
+        </div>
+        <p id="setError" class="error-message"></p>
+        <p id="transactionInfo" class="status-message">交易哈希：</p>
+    </div>
+
+    <!-- 成绩查询选项卡 -->
+    <div id="queryTab" class="tab-content">
+        <h2>查询学生成绩</h2>
+        <div class="form-group">
+            <label for="queryStudentId">学号：</label>
+            <input type="number" id="queryStudentId" placeholder="请输入要查询的学号">
+            <div class="button-container">
+                <button id="queryButton" class="primary-button">查询成绩</button>
+            </div>
+        </div>
+        <div id="results" class="results-container">
+            <!-- 成绩结果将在这里显示 -->
+        </div>
+    </div>
+
+    <!-- 批量导入选项卡 -->
+    <div id="batchTab" class="tab-content">
+        <h2>批量导入学生成绩</h2>
+        <div class="form-group">
+            <label for="excelFile">上传Excel文件：</label>
+            <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+            <p class="hint">文件格式要求：第一列为学号，第一行为课程名称</p>
+        </div>
+
+        <div class="button-container">
+            <button id="previewButton" class="secondary-button">预览数据</button>
+            <button id="importButton" class="primary-button" disabled>批量导入</button>
+        </div>
+
+        <div id="previewContainer" class="preview-container">
+            <h3>数据预览</h3>
+            <div id="previewTable" class="preview-table"></div>
+        </div>
+
+        <p id="batchError" class="error-message"></p>
+        <p id="batchTransactionInfo" class="status-message">交易哈希：</p>
+    </div>
+
+    <!-- 数据统计选项卡 (新增) -->
+    <div id="statsTab" class="tab-content">
+        <h2>数据统计</h2>
+        <div class="stats-container">
+            <div class="stats-summary">
+                <div class="stats-card">
+                    <h3>学生总数</h3>
+                    <p id="totalStudents">加载中...</p>
+                </div>
+                <div class="stats-card">
+                    <h3>课程总数</h3>
+                    <p id="totalSubjects">加载中...</p>
+                </div>
+                <div class="stats-card">
+                    <h3>成绩记录总数</h3>
+                    <p id="totalScores">加载中...</p>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>各科目平均成绩</h3>
+                    <div id="subjectAvgChart" class="chart"></div>
+                </div>
+                <div class="chart-box">
+                    <h3>成绩分布</h3>
+                    <div id="gradeDistributionChart" class="chart"></div>
+                </div>
+            </div>
+            <button id="refreshStats" class="secondary-button">刷新数据</button>
+        </div>
+    </div>
+
+    <!-- 学费缴纳选项卡 (新增) -->
+    <div id="paymentTab" class="tab-content">
+        <h2>学费缴纳</h2>
+        <div class="form-container">
+            <div class="payment-info">
+                <h3>缴费说明</h3>
+                <p>学费金额: <strong>36 ETH</strong></p>
+                <p>请确保您的账户中有足够的ETH余额。</p>
+                <p>每个学生仅需支付一次学费。</p>
+            </div>
+            <div class="form-group">
+                <label for="paymentStudentId">学号:</label>
+                <input type="number" id="paymentStudentId" placeholder="请输入学号" required>
+            </div>
+            <button id="checkPaymentStatus" class="secondary-button">检查缴费状态</button>
+            <div id="paymentStatus" class="status-message"></div>
+            <button id="payTuition" class="primary-button">缴纳学费</button>
+            <div id="paymentResult" class="results-container"></div>
+
+            <!-- 管理员功能区域 -->
+            <div class="admin-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ccc;">
+                <h3>管理员功能</h3>
+                <p class="hint" style="color: #e74c3c; margin-bottom: 15px;">注意：以下功能仅限管理员账户使用</p>
+                <div class="button-group">
+                    <button id="withdrawButton" class="primary-button">提现合约余额</button>
+                    <button id="getPaidStudentsButton" class="secondary-button">查询已缴费学生</button>
+                </div>
+                <div id="adminResult" class="results-container" style="margin-top: 15px;">管理员操作结果将显示在这里</div>
+                <div id="paidStudentsList" class="results-container"
+                    style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
+                    <!-- 已缴费学生列表将显示在这里 -->
+                </div>
+                <p class="hint" style="margin-top: 10px; color: #888;">
+                    注意：查询已缴费学生功能会依次检查学号1000-1100范围内的所有学生，在实际应用中建议优化合约以提供更高效的查询功能。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 账户信息选项卡 -->
+    <div id="accountTab" class="tab-content">
+        <h2>账户信息</h2>
+        <div class="form-container">
+            <div class="button-container">
+                <button onclick="getAccountInfo()" class="primary-button">刷新账户信息</button>
+            </div>
+            <div class="results-container">
+                <p id="accountAddressDetail">账户地址：</p>
+                <p id="accountBalanceDetail">账户余额：</p>
+            </div>
+
+            <!-- 交易哈希查询部分 -->
+            <div class="form-group" style="margin-top: 20px;">
+                <h3>交易信息查询</h3>
+                <label for="txHashInput">交易哈希：</label>
+                <input type="text" id="txHashInput" placeholder="请输入交易哈希">
+                <div class="button-container">
+                    <button onclick="getTransactionInfo()" class="primary-button">查询交易信息</button>
+                </div>
+                <div id="transactionInfo" class="results-container">交易信息将显示在这里</div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- IPFS上传选项卡 -->
+    <div id="ipfsTab" class="tab-content">
+        <h2>上传图片到IPFS</h2>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="imageInput">选择图片：</label>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+            <div class="button-container">
+                <button onclick="uploadImageToPinata()" class="primary-button">上传图片</button>
+            </div>
+            <div id="pinataResponse" class="results-container"></div>
+        </div>
+    </div>
+
+    <!-- 加载指示器 -->
+    <div id="loadingIndicator" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>处理中，请稍候...</p>
+    </div>
+
+    <!-- 添加脚本文件，确保在DOM加载后执行 -->
+    <script src="./script.js"></script>
+</body>
+
+</html>

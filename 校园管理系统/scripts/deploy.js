@@ -8,6 +8,50 @@ const fs = require("fs");
 // 引入路径
 const path = require("path");
 
+async function deployContract(contractName, deployer) {
+  console.log(`正在编译${contractName}合约...`);
+  const ContractFactory = await hre.ethers.getContractFactory(contractName);
+
+  console.log(`正在部署${contractName}合约...`);
+  const contract = await ContractFactory.deploy();
+  console.log(`等待${contractName}合约部署确认...`);
+  await contract.waitForDeployment();
+
+  const contractAddress = await contract.getAddress();
+  console.log(`${contractName}合约部署成功！地址:`, contractAddress);
+
+  // 将合约地址写入 JSON 文件
+  const addressPath = path.join(__dirname, `./${contractName}_address.json`);
+  const addressData = {
+    contractAddress: contractAddress,
+    deployedAt: new Date().toISOString(),
+    network: hre.network.name,
+    deployer: deployer.address
+  };
+
+  fs.writeFileSync(addressPath, JSON.stringify(addressData, null, 2));
+  console.log(`${contractName}合约地址已写入文件: ${addressPath}`);
+
+  // 验证合约部署
+  const deployedCode = await deployer.provider.getCode(contractAddress);
+  if (deployedCode === "0x") {
+    throw new Error(`${contractName}合约部署验证失败：在区块链上未找到合约代码`);
+  }
+
+  // 提取并保存ABI
+  const artifact = require(`../artifacts/contracts/${contractName}.sol/${contractName}.json`);
+  const abiPath = path.join(__dirname, `./${contractName}_ABI.json`);
+  fs.writeFileSync(abiPath, JSON.stringify(artifact.abi, null, 2));
+  console.log(`${contractName}的ABI已写入文件: ${abiPath}`);
+
+  console.log(`${contractName}合约部署验证成功！`);
+  
+  return {
+    name: contractName,
+    address: contractAddress
+  };
+}
+
 async function main() {
   try {
     console.log("开始部署合约...");
@@ -21,46 +65,21 @@ async function main() {
     const balance = await deployer.provider.getBalance(deployer.address);
     console.log("部署账户余额:", hre.ethers.formatEther(balance), "ETH");
 
-    // 编译并部署 YourCollectible
-    console.log("正在编译合约...");
-    const YourCollectible = await hre.ethers.getContractFactory("YourCollectible");
+    // 部署合约列表
+    const contractsToDeply = ["YourCollectible", "MyContract"];
+    const deployedContracts = [];
 
-    console.log("正在部署合约...");
-    const yourCollectible = await YourCollectible.deploy();
-    console.log("等待合约部署确认...");
-    await yourCollectible.waitForDeployment();
-
-    const contractAddress = await yourCollectible.getAddress();
-    console.log("合约部署成功！地址:", contractAddress);
-
-    // 将合约地址写入 JSON 文件
-    const addressPath = path.join(__dirname, './YourCollectible_address.json');
-    const addressData = {
-      contractAddress: contractAddress,
-      deployedAt: new Date().toISOString(),
-      network: hre.network.name,
-      deployer: deployer.address
-    };
-
-    fs.writeFileSync(addressPath, JSON.stringify(addressData, null, 2));
-    console.log(`合约地址已写入文件: ${addressPath}`);
-
-    // 验证合约部署
-    const deployedCode = await deployer.provider.getCode(contractAddress);
-    if (deployedCode === "0x") {
-      throw new Error("合约部署验证失败：在区块链上未找到合约代码");
+    // 依次部署每个合约
+    for (const contractName of contractsToDeply) {
+      const deployedContract = await deployContract(contractName, deployer);
+      deployedContracts.push(deployedContract);
     }
 
-    // 提取并保存ABI
-    const artifact = require("../artifacts/contracts/YourCollectible.sol/YourCollectible.json");
-    const abiPath = path.join(__dirname, './YourCollectible_ABI.json');
-    fs.writeFileSync(abiPath, JSON.stringify(artifact.abi, null, 2));
-    console.log(`ABI已写入文件: ${abiPath}`);
-
-    console.log("合约部署验证成功！");
-    console.log("\n部署摘要:");
-    console.log("- 合约名称: YourCollectible");
-    console.log("- 合约地址:", contractAddress);
+    console.log("\n所有合约部署摘要:");
+    deployedContracts.forEach(contract => {
+      console.log(`- 合约名称: ${contract.name}`);
+      console.log(`- 合约地址: ${contract.address}`);
+    });
     console.log("- 网络:", hre.network.name);
     console.log("- 部署者:", deployer.address);
     console.log("- 部署时间:", new Date().toLocaleString());

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app" content="基于区块链的成绩管理系统">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="icon" href="/assets/favicon-CK_Ub9RI.ico" type="image/x-icon">
+    <title>管理员页面 | 区块链成绩管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script type="module" crossorigin src="/assets/admin-C4Pcaq6d.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/error-DxBeLxpQ.js">
+  <link rel="modulepreload" crossorigin href="/assets/transactionHelper-CcnemSdY.js">
+  <link rel="modulepreload" crossorigin href="/assets/web3Utils-CLO0_VA5.js">
+  <link rel="stylesheet" crossorigin href="/assets/error-C9aK03SP.css">
+</head>
+<body class="page-container">
+    <header class="app-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-logo">
+                    <span class="brand-icon">📚</span>
+                    <span class="brand-text">区块链成绩管理系统</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">首页</a>
+                    <a href="login.html" class="nav-link">登录</a>
+                    <a href="admin.html" class="nav-link active">管理员</a>
+                    <a href="teacher.html" class="nav-link">教师</a>
+                    <a href="student.html" class="nav-link">学生</a>
+                </div>
+                <div class="menu-toggle" id="menuToggleBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+            <div class="user-controls">
+                <button id="connectWalletBtn" class="btn btn-primary flex items-center gap-2">
+                    <span class="btn-icon">🔗</span>
+                    <span class="btn-text">连接钱包</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- 管理员信息卡片 -->
+        <div class="dashboard-card user-info-card fade-in">
+            <h2 class="card-title">👨‍💼 管理员信息</h2>
+            <div class="status-items">
+                <div class="status-item">
+                    <span class="status-label">身份：</span>
+                    <span id="currentRole" class="status-value">管理员</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">钱包地址：</span>
+                    <span id="walletAddress" class="status-value"><span class="loading-spinner"></span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 教师管理面板 -->
+        <div class="dashboard-card teacher-management-card fade-in">
+            <h2 class="card-title">👩‍🏫 教师管理</h2>
+            <div class="form-group">
+                <input type="text" id="teacherAddress" class="modern-input" placeholder="输入教师钱包地址 (0x...)">
+                <button class="btn btn-primary w-full" id="addTeacherBtn">
+                    <span class="btn-icon">➕</span>
+                    添加教师
+                </button>
+            </div>
+            
+            <!-- 交易状态显示区域 -->
+            <div id="teacher-transaction-status" class="transaction-status">
+                <h3>交易状态</h3>
+                <div id="teacher-status">准备中...</div>
+                <div id="teacher-hash" style="display: none;"></div>
+                <div class="progress-container">
+                    <div id="teacher-progress" class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="teacher-list mt-4">
+                <h3>当前教师列表</h3>
+                <div id="teacherList" class="list-container mt-4" data-role="teacher-list">
+                    <!-- 动态加载教师列表 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统监控面板 -->
+        <div class="dashboard-card system-monitor-card fade-in">
+            <h2 class="card-title">📊 系统监控</h2>
+            <div class="monitor-grid">
+                <div class="monitor-item">
+                    <h3>合约状态</h3>
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span id="contractStatus">正常运行</span>
+                    </div>
+                </div>
+                <div class="monitor-item">
+                    <h3>系统统计</h3>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-label">总学生数：</span>
+                            <span id="totalStudents" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">总教师数：</span>
+                            <span id="totalTeachers" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">总成绩记录：</span>
+                            <span id="totalScores" class="stat-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统日志面板 -->
+        <div class="dashboard-card system-log-card fade-in">
+            <h2 class="card-title">📝 系统日志</h2>
+            <div class="log-container">
+                <div id="systemLogs" class="log-content">
+                    <!-- 动态加载系统日志 -->
+                </div>
+                <button class="btn btn-secondary mt-4" id="refreshLogsBtn">
+                    <span class="btn-icon">🔄</span>
+                    刷新日志
+                </button>
+            </div>
+        </div>
+
+        <!-- 系统设置面板 -->
+        <div class="dashboard-card settings-card fade-in">
+            <h2 class="card-title">⚙️ 系统设置</h2>
+            <div class="settings-container">
+                <div class="setting-item">
+                    <label for="contractAddress">合约地址：</label>
+                    <input type="text" id="contractAddress" class="modern-input" readonly>
+                </div>
+                <div class="setting-item">
+                    <label for="networkType">网络类型：</label>
+                    <select id="networkType" class="modern-select">
+                        <option value="mainnet">主网</option>
+                        <option value="testnet">测试网</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary mt-4" id="updateSettingsBtn">
+                    <span class="btn-icon">💾</span>
+                    保存设置
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>© 2025 EduChain - 区块链成绩管理系统</p>
+    </footer>
+
+    <script src="../scripts/menuToggle.js" defer></script>
+</body>
+</html>

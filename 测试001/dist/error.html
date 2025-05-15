@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app" content="基于区块链的成绩管理系统">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>错误页面 | EduChain 区块链成绩管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        /* 错误页面特定样式 */
+        .error-page {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+        }
+        
+        .error-container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .error-status {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            font-size: 180px;
+            font-weight: 700;
+            color: rgba(var(--primary-color-rgb), 0.05);
+            z-index: 0;
+            user-select: none;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--error-color);
+            position: relative;
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .error-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .error-message {
+            background: var(--background-color);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-color);
+            font-size: 1rem;
+            text-align: left;
+            word-break: break-word;
+            position: relative;
+            z-index: 1;
+            border-left: 4px solid var(--error-color);
+        }
+        
+        .error-message-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--error-color);
+        }
+        
+        .error-code {
+            display: inline-block;
+            background: rgba(var(--error-color-rgb), 0.1);
+            color: var(--error-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-left: var(--spacing-xs);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .action-button {
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .primary-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .primary-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .secondary-button {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+        
+        .secondary-button:hover {
+            background-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+        
+        .error-tips {
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .error-tips-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+        }
+        
+        .tips-list {
+            text-align: left;
+            padding-left: var(--spacing-lg);
+        }
+        
+        .tips-list li {
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .error-container {
+                padding: var(--spacing-lg);
+            }
+            
+            .error-status {
+                font-size: 120px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .action-button {
+                width: 100%;
+            }
+        }
+        
+        /* 为了兼容现有的CSS变量，添加RGB版本 */
+        :root {
+            --primary-color-rgb: 67, 97, 238;
+            --error-color-rgb: 247, 37, 133;
+        }
+    </style>
+    <script src="../routes/router.js" type="module"></script>
+    <script type="module" src="../utils/error.js"></script>
+</head>
+<body class="page-container">
+    <header class="app-header">
+        <div class="header-content">
+            <nav class="main-nav">
+                <a href="index.html" class="nav-logo">
+                    <span class="brand-icon">📚</span>
+                    <span class="brand-text">区块链成绩管理系统</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">首页</a>
+                    <a href="login.html" class="nav-link">登录</a>
+                    <a href="admin.html" class="nav-link">管理员</a>
+                    <a href="teacher.html" class="nav-link">教师</a>
+                    <a href="student.html" class="nav-link">学生</a>
+                </div>
+                <div class="menu-toggle" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content error-page">
+        <div class="error-container">
+            <div class="error-status" id="errorStatus">404</div>
+            <div class="error-icon" id="errorIcon">⚠️</div>
+            <h1 class="error-title" id="errorTitle">出错了</h1>
+            <p class="error-subtitle">很抱歉，在处理您的请求时遇到了问题</p>
+            
+            <div class="error-message">
+                <div class="error-message-title">错误详情<span class="error-code" id="errorCode">ERR-UNKNOWN</span></div>
+                <div id="errorMessage">加载中...</div>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="window.history.back()" class="action-button secondary-button">
+                    <span>↩️</span> 返回上一页
+                </button>
+                <button onclick="window.location.href='index.html'" class="action-button primary-button">
+                    <span>🏠</span> 返回首页
+                </button>
+                <button onclick="location.reload()" class="action-button secondary-button">
+                    <span>🔄</span> 刷新页面
+                </button>
+            </div>
+            
+            <div class="error-tips">
+                <h3 class="error-tips-title">您可以尝试以下解决方法：</h3>
+                <ul class="tips-list" id="errorTips">
+                    <li>检查您的网络连接是否正常</li>
+                    <li>确认您的钱包是否已连接</li>
+                    <li>尝试清除浏览器缓存后重新登录</li>
+                    <li>联系系统管理员获取帮助</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>© 2025 EduChain - 区块链成绩管理系统</p>
+    </footer>
+
+    <!-- 动态通知组件 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // 移动端菜单切换
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+        
+        // 解析错误信息并显示
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL中的错误信息参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorMessage = urlParams.get('message') || '发生未知错误';
+            const errorCode = urlParams.get('code') || 'ERR-UNKNOWN';
+            const errorType = urlParams.get('type') || 'error';
+            
+            // 设置错误状态码和图标
+            const statusMap = {
+                'error': { status: '500', icon: '⚠️', title: '系统错误' },
+                'auth': { status: '401', icon: '🔒', title: '未授权访问' },
+                'notfound': { status: '404', icon: '🔍', title: '页面未找到' },
+                'wallet': { status: '403', icon: '👛', title: '钱包错误' },
+                'contract': { status: '500', icon: '📜', title: '合约错误' },
+                'network': { status: '503', icon: '🌐', title: '网络错误' }
+            };
+            
+            const errorInfo = statusMap[errorType] || statusMap.error;
+            
+            // 更新错误信息显示
+            document.getElementById('errorStatus').textContent = errorInfo.status;
+            document.getElementById('errorIcon').textContent = errorInfo.icon;
+            document.getElementById('errorTitle').textContent = errorInfo.title;
+            document.getElementById('errorCode').textContent = errorCode;
+            document.getElementById('errorMessage').textContent = decodeURIComponent(errorMessage);
+            
+            // 根据错误类型显示不同的提示
+            const tipsList = document.getElementById('errorTips');
+            tipsList.innerHTML = '';
+            
+            const tips = {
+                'error': [
+                    '刷新页面后重试',
+                    '清除浏览器缓存',
+                    '联系系统管理员'
+                ],
+                'auth': [
+                    '确认您已正确登录系统',
+                    '检查您是否有权限访问此页面',
+                    '尝试重新连接钱包并登录'
+                ],
+                'notfound': [
+                    '检查URL是否正确',
+                    '返回首页浏览其他内容',
+                    '如果您是通过链接访问，请联系链接提供者'
+                ],
+                'wallet': [
+                    '确认您的钱包已正确连接',
+                    '检查您的钱包是否已解锁',
+                    '尝试使用其他浏览器或设备'
+                ],
+                'contract': [
+                    '检查您的钱包中是否有足够的gas费用',
+                    '确认您的网络连接是否稳定',
+                    '等待一段时间后重试'
+                ],
+                'network': [
+                    '检查您的网络连接是否正常',
+                    '确认您连接的是正确的区块链网络',
+                    '尝试切换到其他网络后再切回'
+                ]
+            };
+            
+            const currentTips = tips[errorType] || tips.error;
+            currentTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                tipsList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

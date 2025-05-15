@@ -278,112 +278,257 @@ function generatePreviewTable(data) {
 }
 
 // 批量导入数据
-async function importExcel() {
+// 导入Excel数据
+async function importExcelData() {
     if (!excelData || !excelData.students || excelData.students.length === 0) {
-        document.getElementById('batchError').innerText = '没有有效的数据可导入';
+        document.getElementById('batchError').innerText = '没有可导入的数据';
         return;
     }
 
     try {
-        // 准备批量导入的数据结构
-        const studentIds = [];
-        const subjectNamesArray = [];
-        const scoresArray = [];
-
-        // 准备数据库API请求的数据结构
-        const dbStudents = [];
-
-        // 遍历每个学生
-        for (const student of excelData.students) {
-            const studentId = parseInt(student.studentId);
-
-            if (isNaN(studentId)) {
-                continue; // 跳过无效学号
-            }
-
-            const studentSubjects = [];
-            const studentScores = [];
-
-            // 遍历每门课程
-            for (let i = 0; i < excelData.headers.length; i++) {
-                const score = i < student.scores.length ? student.scores[i] : null;
-
-                // 只添加有效成绩的课程
-                if (score !== null && !isNaN(score) && score >= 0 && score <= 100) {
-                    studentSubjects.push(excelData.headers[i]);
-                    studentScores.push(score);
-                }
-            }
-
-            // 只有有课程数据的学生才添加
-            if (studentSubjects.length > 0) {
-                studentIds.push(studentId);
-                subjectNamesArray.push(studentSubjects);
-                scoresArray.push(studentScores);
-
-                // 为数据库API添加记录
-                dbStudents.push({
-                    studentId: studentId,
-                    subjectNames: studentSubjects,
-                    scores: studentScores
-                });
-            }
-        }
-
-        if (studentIds.length === 0) {
-            document.getElementById('batchError').innerText = '没有有效的学生成绩数据可导入';
-            return;
-        }
-
-        // 获取用户账户
+        document.getElementById('batchError').innerHTML = `
+            <div class="status-message info">
+                ⏳ 正在处理数据，共 ${excelData.students.length} 名学生...
+            </div>
+        `;
+        
         const accounts = await web3.eth.getAccounts();
+        if (!accounts || accounts.length === 0) {
+            throw new Error('未检测到以太坊账户，请确保MetaMask已登录并授权');
+        }
+        
+        // 验证数据格式
+        const validStudents = [];
+        const invalidStudents = [];
+        
+        for (const student of excelData.students) {
+            // 验证学号
+            const studentId = parseInt(student.studentId);
+            if (isNaN(studentId) || studentId <= 0) {
+                invalidStudents.push({
+                    studentId: student.studentId,
+                    reason: '学号无效'
+                });
+                continue;
+            }
+            
+            // 验证成绩
+            const validScores = [];
+            const validSubjects = [];
+            let hasValidScore = false;
+            
+            for (let i = 0; i < excelData.headers.length; i++) {
+                const subject = excelData.headers[i];
+                const score = student.scores[i];
+                
+                if (score === null || isNaN(score)) {
+                    continue; // 跳过无效成绩
+                }
+                
+                validSubjects.push(subject);
+                validScores.push(score);
+                hasValidScore = true;
+            }
+            
+            if (!hasValidScore) {
+                invalidStudents.push({
+                    studentId: student.studentId,
+                    reason: '没有有效成绩'
+                });
+                continue;
+            }
+            
+            validStudents.push({
+                studentId: studentId,
+                subjectNames: validSubjects,
+                scores: validScores
+            });
+        }
+        
+        if (validStudents.length === 0) {
+            throw new Error('没有有效的学生成绩数据可导入');
+        }
+        
+        if (invalidStudents.length > 0) {
+            document.getElementById('batchError').innerHTML += `
+                <div class="status-message warning">
+                    ⚠️ ${invalidStudents.length} 名学生的数据无效，将被跳过
+                </div>
+            `;
+        }
 
-        // 获取当前gas价格
-        const gasPrice = await web3.eth.getGasPrice();
+        document.getElementById('batchError').innerHTML += `
+            <div class="status-message info">
+                ⏳ 准备写入区块链，共 ${validStudents.length} 名学生的成绩数据...
+            </div>
+        `;
 
-        // 调用合约的setBatch方法
-        const tx = await contract.methods.setBatch(studentIds, subjectNamesArray, scoresArray).send({
-            from: accounts[0],
-            gasPrice: gasPrice
-        });
+        // 分批处理，每批最多3名学生 (减小批次大小)
+        const batchSize = 3;
+        let successCount = 0;
+        let failCount = 0;
+        let lastTransactionHash = '';
 
-        // 显示交易哈希
-        document.getElementById('batchTransactionInfo').innerText = "交易哈希: " + tx.transactionHash;
+        for (let i = 0; i < validStudents.length; i += batchSize) {
+            const endIndex = Math.min(i + batchSize, validStudents.length);
+            const batchStudents = validStudents.slice(i, endIndex);
+            
+            document.getElementById('batchError').innerHTML += `
+                <div class="status-message info">
+                    ⏳ 正在处理第 ${i+1} 到 ${endIndex} 名学生的数据...
+                </div>
+            `;
+            
+            // 单独处理每个学生
+            for (let j = 0; j < batchStudents.length; j++) {
+                const student = batchStudents[j];
+                
+                document.getElementById('batchError').innerHTML += `
+                    <div class="status-message info">
+                        ⏳ 正在处理学号为 ${student.studentId} 的学生数据...
+                    </div>
+                `;
+                
+                try {
+                    // 获取学生现有成绩
+                    let existingSubjectNames = [];
+                    let existingScores = [];
+                    
+                    try {
+                        const result = await contract.methods.get(student.studentId).call();
+                        if (result && result[0]) {
+                            existingSubjectNames = result[1] || [];
+                            existingScores = result[2] || [];
+                        }
+                    } catch (error) {
+                        console.log(`获取学生 ${student.studentId} 现有成绩失败:`, error);
+                    }
+                    
+                    // 合并现有成绩和新成绩
+                    const mergedSubjectNames = [...existingSubjectNames];
+                    const mergedScores = [...existingScores];
+                    
+                    // 添加新成绩
+                    for (let k = 0; k < student.subjectNames.length; k++) {
+                        const subjectName = student.subjectNames[k];
+                        const score = student.scores[k];
+                        
+                        // 查找是否已存在该科目
+                        const existingIndex = mergedSubjectNames.findIndex(name => name === subjectName);
+                        
+                        if (existingIndex !== -1) {
+                            // 如果科目已存在，更新成绩
+                            mergedScores[existingIndex] = score;
+                        } else {
+                            // 如果科目不存在，添加新科目和成绩
+                            mergedSubjectNames.push(subjectName);
+                            mergedScores.push(score);
+                        }
+                    }
+                    
+                    // 使用单个学生的set方法
+                    const tx = await contract.methods.set(
+                        student.studentId,
+                        mergedSubjectNames,
+                        mergedScores
+                    ).send({
+                        from: accounts[0],
+                        gas: 3000000  // 设置足够的gas限制
+                    });
+                    
+                    lastTransactionHash = tx.transactionHash;
+                    successCount++;
+                    
+                    document.getElementById('batchError').innerHTML += `
+                        <div class="status-message success">
+                            ✅ 学号 ${student.studentId} 写入成功！
+                        </div>
+                    `;
+                } catch (singleError) {
+                    console.error(`学号 ${student.studentId} 写入失败:`, singleError);
+                    failCount++;
+                    
+                    document.getElementById('batchError').innerHTML += `
+                        <div class="status-message error">
+                            ❌ 学号 ${student.studentId} 写入失败: ${singleError.message.substring(0, 100)}...
+                        </div>
+                    `;
+                }
+                
+                // 添加延迟，避免交易堵塞
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+            
+            // 批次之间添加延迟，避免交易堵塞
+            if (i + batchSize < validStudents.length) {
+                document.getElementById('batchError').innerHTML += `
+                    <div class="status-message info">
+                        ⏳ 等待5秒后处理下一批数据...
+                    </div>
+                `;
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
 
-        // 调用后端API将数据保存到MySQL数据库
+        // 尝试保存到数据库
         try {
-            const apiResponse = await fetch('http://localhost:8080/api/students/batch', {
+            document.getElementById('batchError').innerHTML += `
+                <div class="status-message info">
+                    ⏳ 正在保存数据到数据库...
+                </div>
+            `;
+            
+            const response = await fetch('http://localhost:8080/api/students/batch', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ students: dbStudents })
+                body: JSON.stringify({ students: validStudents })
             });
-
-            const apiResult = await apiResponse.json();
-
-            if (apiResult.success) {
-                console.log('成功保存数据到MySQL:', apiResult);
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('batchError').innerHTML += `
+                    <div class="status-message success">
+                        ✅ 数据库保存成功！成功: ${result.stats?.success || validStudents.length}, 失败: ${result.stats?.error || 0}
+                    </div>
+                `;
             } else {
-                console.error('保存数据到MySQL失败:', apiResult);
-                document.getElementById('batchError').innerText = '区块链导入成功，但数据库保存失败: ' + apiResult.message;
+                throw new Error(result.message || '数据库保存失败');
             }
-        } catch (apiError) {
-            console.error('调用数据库API失败:', apiError);
-            document.getElementById('batchError').innerText = '区块链导入成功，但数据库API调用失败: ' + apiError.message;
+        } catch (dbError) {
+            console.error('数据库批量保存失败:', dbError);
+            document.getElementById('batchError').innerHTML += `
+                <div class="status-message error">
+                    ❌ 数据库批量保存失败: ${dbError.message || '服务器错误'}
+                </div>
+            `;
         }
-
-        // 清除错误信息
-        document.getElementById('batchError').innerText = '';
-
-        // 显示成功消息
-        alert(`成功导入 ${studentIds.length} 名学生的成绩数据到区块链和数据库`);
+        
+        // 显示最终结果
+        document.getElementById('batchError').innerHTML += `
+            <div class="status-message ${successCount > 0 ? 'success' : 'error'}">
+                📊 批量导入结果: 成功 ${successCount} 名学生, 失败 ${failCount} 名学生
+                ${successCount > 0 ? `<br>最后成功交易哈希: ${lastTransactionHash}` : ''}
+            </div>
+        `;
+        
+        // 清除预览数据
+        if (successCount > 0) {
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('importButton').disabled = true;
+            excelData = null;
+        }
     } catch (error) {
-        console.error('批量导入失败:', error);
-        document.getElementById('batchError').innerText = '批量导入失败: ' + error.message;
+        console.error('批量导入成绩失败:', error);
+        document.getElementById('batchError').innerHTML += `
+            <div class="status-message error">
+                ❌ 批量导入成绩失败: ${error.message}
+            </div>
+        `;
     }
 }
-
 // 动态加载脚本
 function loadScript(src) {
     return new Promise(function (resolve, reject) {
@@ -469,3 +614,4 @@ async function checkBlockchainConnection() {
         blockchainStatusText.className = 'disconnected';
     }
 };
+
